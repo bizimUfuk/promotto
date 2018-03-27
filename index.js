@@ -20,12 +20,12 @@ express()
 	console.log("4- hereeee:", process.env.DATABASE_URL);
 	
 	pool.on('error', (err, clent) => {
-		console.error('1- Unexpected error on idle client', err)
-		process.exit(-1)
+		console.error('1- Unexpected error on idle client', err);
+		process.exit(-1);
 	};
 
 	pool.connect((err, client, done) => {
-		console.log('2- here in external \n')
+		console.log('2- here in external')
 		if(err) throw err
 		client.query('SELECT NOW() as now', (err, res) => {
 			done()
