@@ -27,6 +27,7 @@ express()
 		}
 		client.end();
 	});
+	console.log("4- here after all");
 
 /*
 	pool.connect(process.env.DATABASE_URL, function(err, client, done){
