@@ -4,7 +4,26 @@ const PORT = process.env.PORT || 5000
 
 var cool = require('cool-ascii-faces');
 const { Pool } = require('pg');
-var pool = new Pool();
+const pool = new Pool()
+
+pool.on('error', (err, clent) => {
+	console.error('1- Unexpected error on idle client', err)
+	process.exit(-1)
+}
+
+pool.connect((err, client, done) => {
+	console.log('2- here in external \n')
+	if(err) throw err
+	client.query('SELECT NOW() as now', (err, res) => {
+		done()
+		if(err){
+			console.log(err.stack)
+		}else{
+			console.log(res.rows[0])
+		}
+		console.log('3- in external too')
+	})
+})
 
 express()
   .use(express.static(path.join(__dirname, 'public')))
@@ -13,7 +32,7 @@ express()
   .get('/', (req, res) => res.render('pages/index'))
   .get('/cool', (req, res) => res.send(cool()))
   .get('/db', function (request, response){
-	console.log("hereeee:", process.env.DATABASE_URL);
+	console.log("4- hereeee:", process.env.DATABASE_URL);
 
 	pool.connect((err, client, release) => {
 		if(err) {
