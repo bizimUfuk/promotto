@@ -22,7 +22,7 @@ express()
 	client.connect();
 	console.log("2- here after client.connect");
 
-	var client.query('SELECT * FROM test_table', function(err, result) {
+	client.query('SELECT * FROM test_table', function(err, result) {
 		console.log("3- here after client.query");
 		if(err){
 			console.error(err);
