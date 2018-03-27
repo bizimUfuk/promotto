@@ -18,6 +18,7 @@ express()
 	client.connect();
 	console.log("2- here after client.connect");
 	client.query('SELECT * FROM test_table', function(err, result) {
+		console.log("3- here after client.query");
 		if(err){
 			console.error(err);
 			response.send("3- Error " + err);
