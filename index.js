@@ -19,7 +19,7 @@ express()
   .get('/db', function (request, response){
 	console.log("1- hereeee:", process.env.DATABASE_URL);
 	var client = new Client(connection);
-	console.log("1.5- client 
+	console.log("1.5- client variable created!");
 	client.connect();
 	console.log("2- here after client.connect");
 
