@@ -13,8 +13,9 @@ express()
   .get('/', (req, res) => res.render('pages/index'))
   .get('/cool', (req, res) => res.send(cool()))
   .get('/db', function (request, response){
-	console.log("hereeee");
+	console.log("hereeee:", process.env.DATABASE_URL);
 	pool.connect(process.env.DATABASE_URL, function(err, client, done){
+
 		client.query('SELECT * FROM test_table', function(err, result) {
 			if(err){
 				console.error(err);
