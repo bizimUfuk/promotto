@@ -22,7 +22,7 @@ express()
 	pool.on('error', (err, clent) => {
 		console.error('1- Unexpected error on idle client', err);
 		process.exit(-1);
-	};
+	});
 
 	pool.connect((err, client, done) => {
 		console.log('2- here in external')
