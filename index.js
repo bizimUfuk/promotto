@@ -30,9 +30,11 @@ express()
 		}else{
 			response.render('pages/db', {results: result.rows});
 		}
-		client.end();
+		//client.end();
 	});
 	console.log("4- here after all");
+	client.end();
+	console.log("5- client.end() initiated");
 
 /*
 	pool.connect(process.env.DATABASE_URL, function(err, client, done){
