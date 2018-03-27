@@ -5,7 +5,10 @@ const PORT = process.env.PORT || 5000
 var cool = require('cool-ascii-faces');
 const { Pool, Client } = require('pg');
 const pool = new Pool()
-const client = new Client()
+const client = new Client({
+  connectionString: process.env.DATABASE_URL,
+  ssl: true,
+})
 
 express()
   .use(express.static(path.join(__dirname, 'public')))
@@ -15,9 +18,11 @@ express()
   .get('/cool', (req, res) => res.send(cool()))
   .get('/db', function (request, response){
 	console.log("1- hereeee:", process.env.DATABASE_URL);
-	client.connect();
+
+	await client.connect();
 	console.log("2- here after client.connect");
-	client.query('SELECT * FROM test_table', function(err, result) {
+
+	var client.query('SELECT * FROM test_table', function(err, result) {
 		console.log("3- here after client.query");
 		if(err){
 			console.error(err);
