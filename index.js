@@ -19,7 +19,7 @@ express()
   .get('/db', function (request, response){
 	console.log("1- hereeee:", process.env.DATABASE_URL);
 
-	await client.connect();
+	client.connect();
 	console.log("2- here after client.connect");
 
 	var client.query('SELECT * FROM test_table', function(err, result) {
