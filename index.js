@@ -36,8 +36,8 @@ express()
       client.end();
     });
   })
-  .get('/ipfssay/:hash', function (req, res){
-    console.log("see what is req: ", req);
+  .get('/ipfs/:hash', function (req, res){
+    console.log("see what is req: ");
     var hash = req.hash;
     console.log("Got a hash: " + hash + " with GET method");
     var client = new Client(connection);
@@ -51,14 +51,6 @@ express()
       }
       client.end();
     });
-  })
-  .post('/ipfssay/:hash', function(req,res){
-    console.log("req.params: ", req);
-    res.send(req.params);
-    var hash = req.hash;
-    console.log("Post rcv.", hash);
-    res.end();
-    hashInDb(hash);
   })
   .listen(PORT, () => console.log(`Listening on ${ PORT }`))
 
