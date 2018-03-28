@@ -3,7 +3,7 @@ const express = require('express')
 var bodyParser = require('body-parser');
 
 const path = require('path')
-const PORT = 5001 //process.env.PORT || 5000
+const PORT = process.env.PORT || 5000
 
 var cool = require('cool-ascii-faces');
 const { Pool, Client } = require('pg');
