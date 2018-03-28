@@ -45,7 +45,7 @@ express()
         console.error(err);
 	response.send("4- Error " + err);
       }else{
-	response.render('pages/db', {results: fetch.rows});
+	res.render('pages/db', {results: fetch.rows});
       }
       client.end();
     });
