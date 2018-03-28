@@ -44,7 +44,7 @@ express()
     var client = new Client(connection);
     client.connect();
     const text = "INSERT INTO hashes (hash) \
-		VALUES ('" + hPost + "') RETURNING hash";
+		VALUES ('" + hash + "') RETURNING hash";
 
     client.query(text, (err,fetch) => {
       
@@ -60,17 +60,3 @@ express()
   })
   .listen(PORT, () => console.log(`Listening on ${ PORT }`))
 
-function hashInDb(hPost){
-  
-  
-
-
-  client2.query(text, (err, res) => {
-    if(err){
-      console.log(err.stack);
-    }else{
-      console.log(res.rows[0]);
-    }
-  });
-  return null;
-}
