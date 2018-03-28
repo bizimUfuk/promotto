@@ -37,7 +37,7 @@ express()
     });
   })
   .get('/ipfs/:hash', function (req, res){
-    console.log("see what is req: ");
+    console.log("see what is req: ", req.params['hash']);
     var hash = req.hash;
     console.log("Got a hash: " + hash + " with GET method");
     var client = new Client(connection);
