@@ -1,4 +1,7 @@
 const express = require('express')
+
+var bodyParser = require('body-parser');
+
 const path = require('path')
 const PORT = process.env.PORT || 5000
 
@@ -10,8 +13,12 @@ const connection = {
   ssl: true,
 }
 
+var hash = "";
+
 express()
   .use(express.static(path.join(__dirname, 'public')))
+  .use(bodyParser.json()) //for parsing application/json
+  .use(bodyParser.urlencoded({ extended: true })) //for parsing application/x-www-form-urlencoded
   .set('views', path.join(__dirname, 'views'))
   .set('view engine', 'ejs')
   .get('/', (req, res) => res.render('pages/index'))
@@ -29,4 +36,27 @@ express()
       client.end();
     });
   })
+  .post('/ipfssay', function(req,res){
+    res.send('POST received');
+    hash = req.body.hash;
+    console.log("Post rcv.", hash);
+    res.end();
+    hashInDb(hash);
+  })
   .listen(PORT, () => console.log(`Listening on ${ PORT }`))
+
+function hashInDb(hPost){
+  const text = 'INSERT INTO test_table VALUES($1) RETURNING *'
+  const values = [hPost, ]
+
+  var client2 = new Client(connection);
+  client2.connect();
+  client2.query(text, values, (err, res) => {
+    if(err){
+      console.log(err.stack);
+    }else{
+      console.log(res.rows[0]);
+    }
+  });
+  return null;
+}
