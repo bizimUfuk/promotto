@@ -50,7 +50,7 @@ express()
       client.end();
     });
   })
-  .post('/ipfssay/:hash', function(req,res){
+  .put('/ipfssay/:hash', function(req,res){
     res.send(req.params);
     var hash = req.params['hash'];
     console.log("Post rcv.", hash);
