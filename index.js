@@ -47,7 +47,7 @@ express()
 
 function hashInDb(hPost){
   
-  const text = 'INSERT INTO hashes (hash) VALUES (' + hPost + ') RETURNING did';
+  const text = "INSERT INTO hashes (hash) VALUES ('" + hPost + "') RETURNING did";
   console.log("Query is: ", text);
 
   var client2 = new Client(connection);
