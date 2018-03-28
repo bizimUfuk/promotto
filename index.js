@@ -26,7 +26,7 @@ express()
   .get('/db', function (request, response){
     var client = new Client(connection);
     client.connect();
-    client.query('SELECT * FROM test_table', function(err, result) {
+    client.query('SELECT * FROM hashes', function(err, result) {
       if(err){
 	console.error(err);
 	response.send("3- Error " + err);
