@@ -37,7 +37,8 @@ express()
     });
   })
   .get('/ipfssay/:hash', function (req, res){
-    var hash = req.params['hash'];
+    var hash = req.hash;
+    console.log("Got a hash: " + hash + " with GET method");
     var client = new Client(connection);
     client.connect();
     client.query("SELECT * FROM hashes WHERE hashes.hash='" + hash + "'", function(err, fetch){
@@ -50,9 +51,9 @@ express()
       client.end();
     });
   })
-  .put('/ipfssay/:hash', function(req,res){
+  .post('/ipfssay', function(req,res){
     res.send(req.params);
-    var hash = req.params['hash'];
+    var hash = req.hash;
     console.log("Post rcv.", hash);
     res.end();
     hashInDb(hash);
