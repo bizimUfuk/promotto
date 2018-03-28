@@ -51,11 +51,11 @@ express()
       client.end();
     });
   })
-  .post('/ipfssay', function(req,res){
+  .post('/ipfssay/:hash', function(req,res){
     console.log("req.params: ", req);
-    res.send(req.params);
+    //res.send(req.params);
     var hash = req.hash;
-    console.log("Post rcv.", hash);
+    console.log("Post rcv.\n", hash);
     res.end();
     hashInDb(hash);
   })
