@@ -17,37 +17,16 @@ express()
   .get('/', (req, res) => res.render('pages/index'))
   .get('/cool', (req, res) => res.send(cool()))
   .get('/db', function (request, response){
-	console.log("1- hereeee:", process.env.DATABASE_URL);
-	var client = new Client(connection);
-	console.log("1.5- client variable created!");
-	client.connect();
-	console.log("2- here after client.connect");
-
-	client.query('SELECT * FROM test_table', function(err, result) {
-		console.log("3- here after client.query");
-		if(err){
-			console.error(err);
-			response.send("3- Error " + err);
-		}else{
-			response.render('pages/db', {results: result.rows});
-		}
-		client.end();
-	});
-	console.log("4- here after all");
-
-/*
-	pool.connect(process.env.DATABASE_URL, function(err, client, done){
-
-		client.query('SELECT * FROM test_table', function(err, result) {
-			done();
-			if(err){
-				console.error(err);
-				response.send("Error " + err);
-			}else{
-				response.render('pages/db', {results: result.rows});
-			};			
-		});
-	});
-*/
-})
+    var client = new Client(connection);
+    client.connect();
+    client.query('SELECT * FROM test_table', function(err, result) {
+      if(err){
+	console.error(err);
+	response.send("3- Error " + err);
+      }else{
+	response.render('pages/db', {results: result.rows});
+      }
+      client.end();
+    });
+  })
   .listen(PORT, () => console.log(`Listening on ${ PORT }`))
