@@ -15,7 +15,7 @@ express()
   .set('views', path.join(__dirname, 'views'))
   .set('view engine', 'ejs')
   .get('/', (req, res) => res.render('pages/index'))
-  .get('/cool', (req, res) => res.send(cool()))
+  .get('/cool', (req, res) => res.render('pages/cool',cool()))
   .get('/db', function (request, response){
     var client = new Client(connection);
     client.connect();
