@@ -36,9 +36,9 @@ express()
       client.end();
     });
   })
-  .post('/ipfssay', function(req,res){
-    res.send('POST received');
-    hash = req.body.hash;
+  .post('/ipfssay/:hash', function(req,res){
+    res.send(req.params);
+    var hash = req.params['hash'];
     console.log("Post rcv.", hash);
     res.end();
     hashInDb(hash);
