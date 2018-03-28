@@ -32,6 +32,7 @@ express()
 	response.send("3- Error " + err);
       }else{
 	response.render('pages/db', {results: result.rows});
+	response.send("yyy");
       }
       client.end();
     });
