@@ -52,7 +52,7 @@ express()
     });
   })
   .post('/ipfssay', function(req,res){
-    console.log(req.params);
+    console.log("req.params: ", req.params);
     var hash = req.hash;
     console.log("Post rcv.", hash);
     res.end();
