@@ -37,12 +37,18 @@ express()
     });
   })
   .get('/ipfs/:hash', function (req, res){
-    console.log("req.hash: ", req.hash);
     var hash = req.params['hash'];
+
     console.log("Got a hash: " + hash + " with GET method");
+
     var client = new Client(connection);
     client.connect();
-    client.query("SELECT * FROM hashes WHERE hashes.hash='" + hash + "'", function(err, fetch){
+    const text = "INSERT INTO hashes (hash) \
+		VALUES ('" + hPost + "') RETURNING hash";
+
+    client.query(text, (err,fetch) => {
+      
+   // client.query("SELECT * FROM hashes WHERE hashes.hash='" + hash + "'", function(err, fetch){
       if(err){
         console.error(err);
 	response.send("4- Error " + err);
@@ -56,11 +62,9 @@ express()
 
 function hashInDb(hPost){
   
-  const text = "INSERT INTO hashes (hash) VALUES ('" + hPost + "') RETURNING did";
-  console.log("Query is: ", text);
+  
 
-  var client2 = new Client(connection);
-  client2.connect();
+
   client2.query(text, (err, res) => {
     if(err){
       console.log(err.stack);
