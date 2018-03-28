@@ -47,8 +47,7 @@ express()
 
 function hashInDb(hPost){
   console.log("hPost is: ", hPost);
-  const text = 'INSERT INTO test_table VALUES($1) RETURNING *'
-  const values = [hPost, ]
+  const text = 'INSERT INTO test_table ' + hPost
 
   var client2 = new Client(connection);
   client2.connect();
