@@ -36,6 +36,20 @@ express()
       client.end();
     });
   })
+  .get('/ipfssay/:hash', function (req, res){
+    var hash = req.params['hash'];
+    var client = new Client(connection);
+    client.connect();
+    client.query("SELECT * FROM hashes WHERE hashes.hash='" + hash + "'", function(err, fetch){
+      if(err){
+        console.error(err);
+	response.send("4- Error " + err);
+      }else{
+	response.render('pages/db', {results: fetch.rows});
+      }
+      client.end();
+    });
+  })
   .post('/ipfssay/:hash', function(req,res){
     res.send(req.params);
     var hash = req.params['hash'];
