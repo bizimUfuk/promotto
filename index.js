@@ -46,12 +46,14 @@ express()
   .listen(PORT, () => console.log(`Listening on ${ PORT }`))
 
 function hashInDb(hPost){
-  console.log("hPost is: ", hPost);
+  
   const text = 'INSERT INTO test_table ' + hPost
+  console.log("Query is: ", text);
+
 
   var client2 = new Client(connection);
   client2.connect();
-  client2.query(text, values, (err, res) => {
+  client2.query(text, (err, res) => {
     if(err){
       console.log(err.stack);
     }else{
