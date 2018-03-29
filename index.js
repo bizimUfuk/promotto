@@ -52,7 +52,7 @@ express()
    // client.query("SELECT * FROM hashes WHERE hashes.hash='" + hash + "'", function(err, fetch){
       if(err){
         console.error(err);
-	response.send("4- Error " + err);
+	res.send("4- Error " + err);
       }else{
 	res.render('pages/db', {results: fetch.rows});
       }
