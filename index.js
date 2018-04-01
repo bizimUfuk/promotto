@@ -48,8 +48,6 @@ express()
 		VALUES ('" + hash + "') RETURNING hash";
 
     client.query(text, (err,fetch) => {
-      
-   // client.query("SELECT * FROM hashes WHERE hashes.hash='" + hash + "'", function(err, fetch){
       if(err){
         console.error(err);
 	res.send("4- Error " + err);
