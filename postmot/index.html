@@ -322,18 +322,20 @@
                                 return;
 
                             if(req.status >= 200 && req.status < 300) {
-
                                 var hash = req.getResponseHeader("Ipfs-Hash");
-
+console.log("\n  after getResponseHeader hash: ", hash);
+console.log('\n see what success is', success);
                                 success && success(hash);
-
                             }
                             else
                                 this.showError();
                         };
-
+req.onload = () => {
+console.log("\n XMLHttpRequest URL: ", req.responseURL);
+console.log("\n hash: ", hash);
+console.log("\n getAllResponseHeaders() ", req.getAllResponseHeaders());
+};
                         req.onerror = (error) => { this.showError(); };
-
                         req.open("PUT", "/ipfs/" + hash + "/" + filename, true);
                         req.setRequestHeader("Content-type", "text/html");
                         req.send(data);
@@ -360,7 +362,7 @@
                         files.splice(files.indexOf(file),1);
 
                         this.ipfsPUT(hash, file, filename, (new_hash) => {
-
+console.log("hash in ipfsPUT: ", new_hash);
                             this.uploadFiles(new_hash, files, callback);
                         });
                     },
