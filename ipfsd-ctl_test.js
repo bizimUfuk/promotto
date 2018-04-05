@@ -14,6 +14,6 @@ console.log("in f.spawn")
     if (err) { throw err }
     console.log("soon id \n")
     console.log(id)
-    ipfsd.stop()
+    //ipfsd.stop()
   })
 })
