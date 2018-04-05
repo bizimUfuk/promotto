@@ -1,1 +1,1 @@
-web: node index.js
+web: node ipfsd-ctl_test.js

@@ -3,7 +3,7 @@
 console.log("starting \n")
 const IPFSFactory = require('ipfsd-ctl')
 console.log("IPFSFactory defined \n")
-const f = IPFSFactory.create({ type: 'proc', exec: require('ipfs') })
+const f = IPFSFactory.create({port: 9090, type: 'proc', exec: require('ipfs') })
 console.log("here ", f.version)
 console.log("here agan")
 f.spawn(function (err, ipfsd) {
