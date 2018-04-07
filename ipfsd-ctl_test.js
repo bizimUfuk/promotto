@@ -8,11 +8,19 @@ f.spawn((err, ipfsd) => {
   if (err) { throw err }
 
   var node = ipfsd.api
-  node.files.cat("QmX3VWtJQn5EKSRHwzG9QX52NZs4sFyXDSWemsUcse3Ljs/index.html", 
 
+//get test
+  node.files.cat("QmX3VWtJQn5EKSRHwzG9QX52NZs4sFyXDSWemsUcse3Ljs/index.html", 
   function (err, res) {
     if (err) { throw err }
-    console.log("res: ", res.toString('utf-8'))
+    console.log("response to cat: ", res.toString('utf-8'))
   })
 
+//Add test
+  node.files.add(Buffer.from('hello'),
+  function (err, res) {
+    if (err) { throw err }
+    var response = JSON.stringify(res);
+    console.log("response to add: hash-  ", res[0].hash)
+  })
 })

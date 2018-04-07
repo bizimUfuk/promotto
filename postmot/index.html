@@ -302,32 +302,27 @@
                     },
 
                     ipfsPUT : function(hash, data, filename, success) {
-
+console.log("in ipfsPUT hash:",hash);
+console.log("in ipfsPUT data:",data);
+console.log("in ipfsPUT filename:",filename);
                         var req = new XMLHttpRequest();
 
                         req.onreadystatechange = () => {
-
                             if(req.readyState != XMLHttpRequest.DONE)
                                 return;
 
                             if(req.status >= 200 && req.status < 300) {
+console.log("in ipfsPUT req:",req.toString());
                                 var hash = req.getResponseHeader("Ipfs-Hash");
-console.log("\n  after getResponseHeader hash: ", hash);
-console.log('\n see what success is', success);
+console.log("in ipfsPUT sucess hash:",hash);
                                 success && success(hash);
                             }
                             else
                                 this.showError();
                         };
-req.onload = () => {
-console.log("\n XMLHttpRequest URL: ", req.responseURL);
-console.log("\n hash: ", hash);
-console.log("\n getAllResponseHeaders() ", req.getAllResponseHeaders());
-};
                         req.onerror = (error) => { this.showError(); };
-console.log("\n right before PUT, hash:", hash);
                         req.open("PUT", "/ipfs/" + hash + "/" + filename, true);
-                        req.setRequestHeader("Content-type", "text/html");
+			req.setRequestHeader("Content-type", "text/html");
                         req.send(data);
                     },
 
@@ -352,7 +347,10 @@ console.log("\n right before PUT, hash:", hash);
                         files.splice(files.indexOf(file),1);
 
                         this.ipfsPUT(hash, file, filename, (new_hash) => {
-console.log("hash in ipfsPUT: ", new_hash);
+console.log("in ipfsPUT inside uploadFiles hash:",hash);
+console.log("in ipfsPUT inside uploadFiles new_hash:",new_hash);
+console.log("in ipfsPUT inside uploadFiles file:",file.toString());
+console.log("in ipfsPUT inside uploadFiles filename:",filename);
                             this.uploadFiles(new_hash, files, callback);
                         });
                     },
@@ -455,9 +453,6 @@ console.log("hash in ipfsPUT: ", new_hash);
                             var req = new XMLHttpRequest();
 			    var site = "https://" + gateway + "/ipfs/" + hash
 			    req.open("GET", site);
-
-console.log(site + "stat: " + req.status + " readyState: " + req.readyState);
-
                             req.send();
                         });
                     },
