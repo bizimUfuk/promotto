@@ -61,8 +61,7 @@ express()
   })
   .get('/ipfs/:hash/', function (req, res){
     console.log("Got a hash: " + req.params['hash'] + " with GET method");
-    const text = "INSERT INTO hashes (hash) \
-		VALUES ('" + req.params['hash'] + "') RETURNING hash";
+    const text = "SELECT * FROM hashes (hash) WHERE hash='" + req.params['hash'] + "') RETURNING hash";
 
     pgInteraction(text, (fetch) => res.render('pages/db', {results: fetch.rows}));
   })
@@ -111,7 +110,7 @@ function pgInteraction(text, callback){
     var client = new Client(connection);    
     client.connect();
     client.query(text, (err,res) => {
-	if(err){ callback("4- Error " + err) };
+	if(err){ throw "4- Error " + err };
 	client.end();
 	callback(res);
     });
