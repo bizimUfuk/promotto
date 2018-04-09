@@ -1,42 +1,7 @@
-var mottoArea
-
 const IPFSFactory = require('ipfsd-ctl')
 const f = IPFSFactory.create({port: 9091, type: 'proc', exec: require('ipfs')})
 
-///DAEMON FUNCTION
-function ipfsDaemonInstance(method, path, data, callb ){
-	console.log("in ipfsDaemonInstance. Method: %s", method);
-	f.spawn((err, ipfsd) => {
-	  if (err) {
-		console.log("Error: ", err);
-		throw err; 
-	  }
-	  var node = ipfsd.api //QmcPgf7ktvpAKLy3AGBZ75zsMKZs9FLd4y8NEAfp7ekGYJ main ipfessay path
-
-	  switch (method){
-		case "GET":
-			node.files.cat(path, function (err, res) {
-				if (err) { throw err }
-				mottoArea = res.toString('utf-8');
-				console.log("mottoArea len: ", mottoArea.lenght);
-			});
-			
-			break;
-		case "PUT":
-//new Buffer.from(data.toString())
-			node.files.add([{content: data, path: path}],[{wrapWithDirectory: true, recursive: true}], function (err, res) {
-				if (err) { 
-					return callb(new Error("Errrr: " + err));
-				}
-				callb(null, res);
-			});
-			break;
-	  }
-	});
-}
-
 const express = require('express')
-
 var bodyParser = require('body-parser');
 
 const path = require('path')
@@ -50,9 +15,20 @@ const connection = {
   ssl: true,
 }
 
-var hash = "";
-var mottoArea = ipfsDaemonInstance("GET", "QmcPgf7ktvpAKLy3AGBZ75zsMKZs9FLd4y8NEAfp7ekGYJ/index.html")
 
+var hash = "";
+let ipfsd
+let mottoArea
+
+
+f.spawn((err, ipfsd) => {
+  if (err) {
+	console.log("Error: ", err);
+	throw err; 
+  }
+
+  var node = ipfsd.api; //QmcPgf7ktvpAKLy3AGBZ75zsMKZs9FLd4y8NEAfp7ekGYJ main ipfessay path
+  
 express()
   .use(express.static(path.join(__dirname, 'public')))
   //.use(bodyParser.json()) //for parsing application/json
@@ -61,7 +37,13 @@ express()
   .use(bodyParser.raw({inflate: true, limit: '100kb', type: 'text/html'}))
   .set('views', path.join(__dirname, 'views'))
   .set('view engine', 'ejs')
-  .get('/', (req, res) => res.render('pages/index', {mottoArea: mottoArea }))
+  .get('/', function (req, res){
+	console.log("Node started: ", ipfsd.started);
+	ipfsDaemonInstance("GET", node, "QmcPgf7ktvpAKLy3AGBZ75zsMKZs9FLd4y8NEAfp7ekGYJ/index.html",'', function (err, extract){
+		if (err){ res.render('pages/index', {mottoArea: "Error: Ipfs version of index.html couldnt be retriewed!" })};
+		res.render('pages/index', {mottoArea: extract });
+	});
+  })
   .get('/cool', (req, res) => res.render('pages/cool', {coolface: cool()} ))
   .get('/db', function (request, response){
     var client = new Client(connection);
@@ -77,35 +59,60 @@ express()
       client.end();
     });
   })
-  .get('/ipfs/:hash', function (req, res){
-    var hash = req.params['hash'];
-
-    console.log("Got a hash: " + hash + " with GET method");
-
-    var client = new Client(connection);
-    client.connect();
+  .get('/ipfs/:hash/', function (req, res){
+    console.log("Got a hash: " + req.params['hash'] + " with GET method");
     const text = "INSERT INTO hashes (hash) \
-		VALUES ('" + hash + "') RETURNING hash";
+		VALUES ('" + req.params['hash'] + "') RETURNING hash";
 
-    client.query(text, (err,fetch) => {
-      if(err){
-        console.error(err);
-	res.send("4- Error " + err);
-      }else{
-	res.render('pages/db', {results: fetch.rows});
-      }
-      client.end();
-    });
+    pgInteraction(text, (fetch) => res.render('pages/db', {results: fetch.rows}));
   })
   .put('/ipfs/:hash/:filename', function (req, res){
-    ipfsDaemonInstance("PUT", "/ipfs/"+ req.params.hash + "/" + req.params.filename, req.body, function(error, response){
+    ipfsDaemonInstance("PUT", node, "/ipfs/"+ req.params.hash + "/" + req.params.filename, req.body, function(error, response){
 	if (error) {
 		console.log("Error this: ", error);
 	}
 	res.setHeader("Ipfs-Hash", response[0].hash);
 	console.log("responseee: ", response);	
 	res.send();
+    	//const text = "INSERT INTO hashes (hash) \
+	//	VALUES ('" + hash + "') RETURNING hash";
     });
   })
   .listen(PORT, () => console.log(`Listening on ${ PORT }`))
+  f.stop();
+});
 
+///DAEMON FUNCTION
+function ipfsDaemonInstance(method, nd, path, data, callb ){
+	console.log("in ipfsDaemonInstance. Method: %s", method);
+
+	  switch (method){
+		case "GET":
+			nd.files.cat(path, function (err, res) {
+				if (err) { throw err }
+				mottoArea = res.toString('utf-8');
+				console.log("mottoArea len: ", mottoArea.lenght);
+				callb(null, mottoArea);
+			});
+			break;
+		case "PUT":
+			nd.files.add([{content: data, path: path}],[{wrapWithDirectory: true, recursive: true}], function (err, res) {
+				if (err) { 
+					return callb(new Error("Errrr: " + err));
+				}
+				callb(null, res);
+			});
+			break;
+	  }
+}
+
+///DATABASE FUNCTION
+function pgInteraction(text, callback){
+    var client = new Client(connection);    
+    client.connect();
+    client.query(text, (err,res) => {
+	if(err){ callback("4- Error " + err) };
+	client.end();
+	callback(res);
+    });
+}
