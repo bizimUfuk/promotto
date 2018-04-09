@@ -62,7 +62,6 @@ express()
   .get('/ipfs/:hash/', function (req, res){
     console.log("Got a hash: " + req.params['hash'] + " with GET method");
     const text = "SELECT * FROM hashes WHERE hash='" + req.params['hash'] + "'";
-
     pgInteraction(text, (fetch) => res.render('pages/db', {results: fetch.rows}));
   })
   .put('/ipfs/:hash/:filename', function (req, res){
@@ -71,10 +70,10 @@ express()
 		console.log("Error this: ", error);
 	}
 	res.setHeader("Ipfs-Hash", response[0].hash);
-	console.log("responseee: ", response);	
 	res.send();
-    	//const text = "INSERT INTO hashes (hash) \
-	//	VALUES ('" + hash + "') RETURNING hash";
+    	const text = "INSERT INTO hashes (hash) \
+		VALUES ('" + hash + "') RETURNING hash";
+	pgInteraction(text, (returning) => res.render('pages/db', {results: returning});
     });
   })
   .listen(PORT, () => console.log(`Listening on ${ PORT }`))
@@ -110,6 +109,7 @@ function pgInteraction(text, callback){
     var client = new Client(connection);    
     client.connect();
     client.query(text, (err,res) => {
+	console.log("DB Query Result: ", res.rows);
 	if(err){ console.log("4- Error: ", err); };
 	client.end();
 	callback(res);
