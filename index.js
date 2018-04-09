@@ -46,23 +46,22 @@ express()
   })
   .get('/cool', (req, res) => res.render('pages/cool', {coolface: cool()} ))
   .get('/db', function (request, response){
-    var client = new Client(connection);
-    client.connect();
-    client.query('SELECT * FROM hashes', function(err, result) {
-      if(err){
-	console.error(err);
-	response.send("3- Error " + err);
-      }else{
-	response.render('pages/db', {results: result.rows});
-	response.send("yyy");
-      }
-      client.end();
+    const text = "SELECT * FROM hashes";
+    pgInteraction(text, function (err, fetch) {
+	if(err){
+		console.error(err);
+		response.send("3- Error " + err);
+	}else{
+		console.log("/db query succss");
+		response.render('pages/db', {results: fetch.rows});
+		response.send();
+	}
     });
   })
   .get('/ipfs/:hash/', function (req, res){
     console.log("Got a hash: " + req.params['hash'] + " with GET method");
     const text = "SELECT * FROM hashes WHERE hash='" + req.params['hash'] + "'";
-    pgInteraction(text, (fetch) => res.render('pages/db', {results: fetch.rows}));
+    pgInteraction(text, (err, fetch) => res.render('pages/db', {results: fetch.rows}));
   })
   .put('/ipfs/:hash/:filename', function (req, res){
     ipfsDaemonInstance("PUT", node, "/ipfs/"+ req.params.hash + "/" + req.params.filename, req.body, function(error, response){
@@ -71,9 +70,9 @@ express()
 	}
 	res.setHeader("Ipfs-Hash", response[0].hash);
 	res.send();
-    	const text = "INSERT INTO hashes (hash) \
-		VALUES ('" + hash + "') RETURNING hash";
-	pgInteraction(text, (returning) => res.render('pages/db', {results: returning}));
+
+    	const text = "INSERT INTO hashes (hash) VALUES ('" + hash + "') RETURNING hash";
+	pgInteraction(text, (err, returning) => res.send('Successfully inserted hash into hashes db'));
     });
   })
   .listen(PORT, () => console.log(`Listening on ${ PORT }`))
@@ -112,6 +111,6 @@ function pgInteraction(text, callback){
 	console.log("DB Query Result: ", res.rows);
 	if(err){ console.log("4- Error: ", err); };
 	client.end();
-	callback(res);
+	callback(null, res);
     });
 }
