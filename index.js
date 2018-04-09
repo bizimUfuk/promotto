@@ -79,7 +79,7 @@ express()
     });
   })
   .listen(PORT, () => console.log(`Listening on ${ PORT }`))
-  f.stop();
+
 });
 
 ///DAEMON FUNCTION
