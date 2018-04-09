@@ -71,8 +71,8 @@ express()
 	res.setHeader("Ipfs-Hash", response[0].hash);
 	res.send();
 
-    	const text = "INSERT INTO hashes (hash) VALUES ('" + hash + "') RETURNING hash";
-	pgInteraction(text, (err, returning) => res.send('Successfully inserted hash into hashes db'));
+    	const text = "INSERT INTO hashes (hash) VALUES ('" + req.params.hash + "') ON CONFLICT DO NOTHING RETURNING hash";
+	pgInteraction(text, (err, fetch) => console.log('Successfully inserted hash into hashes db'));
     });
   })
   .listen(PORT, () => console.log(`Listening on ${ PORT }`))
