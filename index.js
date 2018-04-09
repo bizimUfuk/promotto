@@ -73,7 +73,7 @@ express()
 	res.send();
     	const text = "INSERT INTO hashes (hash) \
 		VALUES ('" + hash + "') RETURNING hash";
-	pgInteraction(text, (returning) => res.render('pages/db', {results: returning});
+	pgInteraction(text, (returning) => res.render('pages/db', {results: returning}));
     });
   })
   .listen(PORT, () => console.log(`Listening on ${ PORT }`))
