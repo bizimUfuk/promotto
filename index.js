@@ -39,6 +39,7 @@ express()
   .set('view engine', 'ejs')
   .get('/', function (req, res){
 	console.log("Node started: ", ipfsd.started);
+	console.log("Node Repo: ", ipfsd.repoPath);
 	ipfsDaemonInstance("GET", node, "QmcPgf7ktvpAKLy3AGBZ75zsMKZs9FLd4y8NEAfp7ekGYJ/index.html",'', function (err, extract){
 		if (err){ res.render('pages/index', {mottoArea: "Error: Ipfs version of index.html couldnt be retriewed!" })};
 		res.render('pages/index', {mottoArea: extract });
@@ -105,10 +106,11 @@ function ipfsDaemonInstance(method, nd, path, data, callb ){
 
 ///DATABASE FUNCTION
 function pgInteraction(text, callback){
+	console.log("DB query: ", text);
     var client = new Client(connection);    
     client.connect();
     client.query(text, (err,res) => {
-    console.log("DB Query Result: ", res);
+    console.log("DB Query Result: ", res.rowCount);
 	if(err){ console.log("4- Error: ", err); };
 	client.end();
 	callback(null, res);
