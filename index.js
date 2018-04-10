@@ -61,7 +61,7 @@ express()
   })
   .get('/ipfs/:hash/', function (req, res){
     console.log("Got a hash: " + req.params['hash'] + " with GET method");
-    const text = "SELECT * FROM hashes WHERE hash='" + req.params['hash'] + " ORDER BY did'";
+    const text = "SELECT * FROM hashes WHERE hash='" + req.params['hash'] + "' ORDER BY did'";
     pgInteraction(text, (err, fetch) => res.render('pages/db', {results: fetch.rows}));
   })
   .put('/ipfs/:hash/:filename', function (req, res){
