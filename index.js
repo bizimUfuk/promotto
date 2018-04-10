@@ -11,10 +11,11 @@ var cool = require('cool-ascii-faces');
 const { Pool, Client } = require('pg');
 
 const connection = {
-  connectionString: process.env.DATABASE_URL,
+  connectionString: process.env.DATABASE_URL || "postgres://test2:postgres@localhost:5432/test2" ,
   ssl: true,
 }
 
+console.log(connection);
 
 var hash = "";
 let ipfsd
@@ -59,7 +60,7 @@ express()
   .get('/ipfs/:hash/', function (req, res){
     console.log("Got a hash: " + req.params['hash'] + " with GET method");
     const text = "SELECT * FROM hashes WHERE hash='" + req.params['hash'] + "' ORDER BY did";
-    pgInteraction(text, (err, fetch) => res.render('pages/db', {results: fetch.rows}));
+    pgInteraction(text, (err, fetch) => res.render('pages/post', {results: fetch.rows}));
   })
   .put('/ipfs/:hash/:filename', function (req, res){
     ipfsDaemonInstance("PUT", node, "/ipfs/"+ req.params.hash + "/" + req.params.filename, req.body, function(error, response){

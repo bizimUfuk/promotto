@@ -9,10 +9,15 @@
 <% include ../partials/nav.ejs %>
 
 <div class="container">
-<h2>post here</h2>
+<h2> Lifeline </h2>
+
+<ul>
+    <% results.forEach(function(r) { %>
+        <li><%= r.did %> - <%= r.hash %>  @<%= r.modetime %></li>
+    <% }); %>
+</ul>
 
 
-<iframe width="1000" height="800" src="http://localhost:8080/ipfs/Qmc8UKKGKqXNtNWvVgMmNRww23TZVLPbyxoSpBC5vcNyBZ/"></iframe>
 
 </div>
 
