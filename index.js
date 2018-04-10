@@ -46,7 +46,7 @@ express()
   })
   .get('/cool', (req, res) => res.render('pages/cool', {coolface: cool()} ))
   .get('/db', function (request, response){
-    const text = "SELECT * FROM hashes";
+    const text = "SELECT * FROM hashes ORDER BY did";
     pgInteraction(text, function (err, fetch) {
 	if(err){
 		console.error(err);
@@ -60,7 +60,7 @@ express()
   })
   .get('/ipfs/:hash/', function (req, res){
     console.log("Got a hash: " + req.params['hash'] + " with GET method");
-    const text = "SELECT * FROM hashes WHERE hash='" + req.params['hash'] + "'";
+    const text = "SELECT * FROM hashes WHERE hash='" + req.params['hash'] + " ORDER BY did'";
     pgInteraction(text, (err, fetch) => res.render('pages/db', {results: fetch.rows}));
   })
   .put('/ipfs/:hash/:filename', function (req, res){
@@ -71,7 +71,7 @@ express()
 	res.setHeader("Ipfs-Hash", response[0].hash);
 	res.send();
 
-    	const text = "INSERT INTO hashes (hash) VALUES ('" + req.params.hash + "') ON CONFLICT DO NOTHING RETURNING hash";
+    	const text = "INSERT INTO hashes (hash) VALUES ('" + response[0].hash + "') ON CONFLICT DO NOTHING RETURNING hash";
 	pgInteraction(text, (err, fetch) => console.log('Successfully inserted hash into hashes db'));
     });
   })
@@ -108,7 +108,7 @@ function pgInteraction(text, callback){
     var client = new Client(connection);    
     client.connect();
     client.query(text, (err,res) => {
-	console.log("DB Query Result: ", res.rows);
+    console.log("DB Query Result: ", res);
 	if(err){ console.log("4- Error: ", err); };
 	client.end();
 	callback(null, res);
