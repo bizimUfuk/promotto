@@ -18,7 +18,6 @@ const connection = {
 
 var hash = "";
 let ipfsd
-let mottoArea
 
 
 f.spawn((err, ipfsd) => {
@@ -38,8 +37,6 @@ express()
   .set('views', path.join(__dirname, 'views'))
   .set('view engine', 'ejs')
   .get('/', function (req, res){
-	console.log("Node started: ", ipfsd.started);
-	console.log("Node Repo: ", ipfsd.repoPath);
 	ipfsDaemonInstance("GET", node, "QmcPgf7ktvpAKLy3AGBZ75zsMKZs9FLd4y8NEAfp7ekGYJ/index.html",'', function (err, extract){
 		if (err){ res.render('pages/index', {mottoArea: "Error: Ipfs version of index.html couldnt be retriewed!" })};
 		res.render('pages/index', {mottoArea: extract });
@@ -61,7 +58,7 @@ express()
   })
   .get('/ipfs/:hash/', function (req, res){
     console.log("Got a hash: " + req.params['hash'] + " with GET method");
-    const text = "SELECT * FROM hashes WHERE hash='" + req.params['hash'] + "' ORDER BY did'";
+    const text = "SELECT * FROM hashes WHERE hash='" + req.params['hash'] + "' ORDER BY did";
     pgInteraction(text, (err, fetch) => res.render('pages/db', {results: fetch.rows}));
   })
   .put('/ipfs/:hash/:filename', function (req, res){
@@ -88,9 +85,7 @@ function ipfsDaemonInstance(method, nd, path, data, callb ){
 		case "GET":
 			nd.files.cat(path, function (err, res) {
 				if (err) { throw err }
-				mottoArea = res.toString('utf-8');
-				console.log("mottoArea len: ", mottoArea.lenght);
-				callb(null, mottoArea);
+				callb(null, res.toString('utf-8'));
 			});
 			break;
 		case "PUT":
@@ -106,7 +101,6 @@ function ipfsDaemonInstance(method, nd, path, data, callb ){
 
 ///DATABASE FUNCTION
 function pgInteraction(text, callback){
-	console.log("DB query: ", text);
     var client = new Client(connection);    
     client.connect();
     client.query(text, (err,res) => {
