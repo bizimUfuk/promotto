@@ -11,9 +11,9 @@
 <div class="container">
 <h2> Lifeline </h2>
 
-<ul>
+<ul style="list-style-type: none;">
     <% results.forEach(function(r) { %>
-        <li><%= r.did %> - <%= r.hash %>  @<%= r.modetime %></li>
+        <li><%= r.did %>   <%- r.extract %>   <%= r.modetime %></li><hr>
     <% }); %>
 </ul>
 

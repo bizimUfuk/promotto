@@ -15,11 +15,9 @@ const connection = {
   ssl: true,
 }
 
-console.log(connection);
-
 var hash = "";
-let ipfsd
-
+let ipfsd;
+let node;
 
 f.spawn((err, ipfsd) => {
   if (err) {
@@ -27,7 +25,7 @@ f.spawn((err, ipfsd) => {
 	throw err; 
   }
 
-  var node = ipfsd.api; //QmcPgf7ktvpAKLy3AGBZ75zsMKZs9FLd4y8NEAfp7ekGYJ main ipfessay path
+  node = ipfsd.api; //QmcPgf7ktvpAKLy3AGBZ75zsMKZs9FLd4y8NEAfp7ekGYJ main ipfessay path
   
 express()
   .use(express.static(path.join(__dirname, 'public')))
@@ -45,22 +43,36 @@ express()
   })
   .get('/cool', (req, res) => res.render('pages/cool', {coolface: cool()} ))
   .get('/db', function (request, response){
+    let mottoHashes
     const text = "SELECT * FROM hashes ORDER BY did";
     pgInteraction(text, function (err, fetch) {
 	if(err){
-		console.error(err);
-		response.send("3- Error " + err);
-	}else{
-		console.log("/db query succss");
-		response.render('pages/db', {results: fetch.rows});
-		response.send();
+		console.log("Error is here in getting pgInteraction", err);
+	}else{	
+		mottoHashes = fetch.rows;
+		
+		let mottos = []
+		for (i = 0; i<mottoHashes.length; i++){
+			let tempObj = Object.assign({}, mottoHashes[i]);
+			ipfsDaemonInstance("GET", node, mottoHashes[i].hash+"/index.html", '', function (err, extract){
+				if (err){throw err;}
+				tempObj["extract"] = extract;
+				if (tempObj.hasOwnProperty("extract")) { mottos.push(tempObj);}
+				if (mottos.length === mottoHashes.length){
+					response.render('pages/post', { results: mottos.sort(function(a,b){return b["did"]-a["did"]}) });
+				}
+			});
+		}
+		
+
+		
 	}
     });
   })
   .get('/ipfs/:hash/', function (req, res){
     console.log("Got a hash: " + req.params['hash'] + " with GET method");
     const text = "SELECT * FROM hashes WHERE hash='" + req.params['hash'] + "' ORDER BY did";
-    pgInteraction(text, (err, fetch) => res.render('pages/post', {results: fetch.rows}));
+    pgInteraction(text, (err, fetch) => res.render('pages/db', {results: fetch.rows}));
   })
   .put('/ipfs/:hash/:filename', function (req, res){
     ipfsDaemonInstance("PUT", node, "/ipfs/"+ req.params.hash + "/" + req.params.filename, req.body, function(error, response){
@@ -80,12 +92,12 @@ express()
 
 ///DAEMON FUNCTION
 function ipfsDaemonInstance(method, nd, path, data, callb ){
-	console.log("in ipfsDaemonInstance. Method: %s", method);
+	console.log("in ipfsDaemonInstance. path: %s", path);
 
 	  switch (method){
 		case "GET":
 			nd.files.cat(path, function (err, res) {
-				if (err) { throw err }
+				if (err) { res=''; }
 				callb(null, res.toString('utf-8'));
 			});
 			break;
@@ -106,8 +118,12 @@ function pgInteraction(text, callback){
     client.connect();
     client.query(text, (err,res) => {
     console.log("DB Query Result: ", res.rowCount);
-	if(err){ console.log("4- Error: ", err); };
-	client.end();
+	if(err){ 
+		console.log("4- Error: ", err);
+		callback(err, null);
+	};	
 	callback(null, res);
+	client.end();
     });
 }
+
