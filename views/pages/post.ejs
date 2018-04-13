@@ -2,6 +2,20 @@
 <html>
 <head>
   <% include ../partials/header.ejs %>
+<script>
+	window.addEventListener('click',function(e)
+	{
+	    e = e || window.event;
+	    var target = e.target || e.srcElement;
+	    console.log(target.id, target.value);
+	    document.getElementById(target.id).setAttribute("disabled","disabled");
+	    document.getElementById(target.id).style.background="rgba(255,0,0,0.6)";
+
+	    var sign = target.id.toString().substr(0,1)=="+"? "-":"+";
+	    document.getElementById(sign.concat(target.id.toString().substr(1))).setAttribute("disabled","disabled");
+	}, false);
+
+</script>
 </head>
 
 <body>
@@ -12,9 +26,20 @@
 <h2> Lifeline </h2>
 
 <ul style="list-style-type: none;">
+    
     <% results.forEach(function(r) { %>
-        <li><%= r.did %>   <%- r.extract %>   <%= r.modetime %></li><hr>
+	<% var msec = Date.parse(new Date (r.modetime)); %>
+	<% msec = msec + r.life * 60 * 1000; %>
+	<% var dDate = new Date (msec); %>
+        <li class="motto"><%- r.extract %><%= r.did %> @<%= dDate %><p id="<%= r.pid %>"> <%= r.life %></p>
+	    <div id="<%= r.hash %>">
+		<input id="+<%= r.did %>" type="button" value="upVote"/>
+		<input id="-<%= r.did %>" type="button" value="downVote"/>
+	    </div>
+	</li>
+	<hr>
     <% }); %>
+    
 </ul>
 
 

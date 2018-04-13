@@ -69,6 +69,7 @@ express()
 	}
     });
   })
+  .post('/upvote', (req, res) => res.send("OK"))
   .get('/ipfs/:hash/', function (req, res){
     console.log("Got a hash: " + req.params['hash'] + " with GET method");
     const text = "SELECT * FROM hashes WHERE hash='" + req.params['hash'] + "' ORDER BY did";
