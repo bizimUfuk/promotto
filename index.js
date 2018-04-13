@@ -1,5 +1,5 @@
 const IPFSFactory = require('ipfsd-ctl')
-const f = IPFSFactory.create({port: 9091, type: 'proc', exec: require('ipfs')})
+const f = IPFSFactory.create({ type: 'proc', exec: require('ipfs')})
 
 const express = require('express')
 var bodyParser = require('body-parser');
@@ -16,18 +16,36 @@ const connection = {
 }
 
 var hash = "";
-let ipfsd;
 let node;
 
-f.spawn((err, ipfsd) => {
-  if (err) {
-	console.log("Error: ", err);
-	throw err; 
-  }
+const startDaemon = (ipfsd) => {
+	ipfsd.start((err, api)=>{
+		if(err) { throw err }
+		if(ipfsd.started){ 
+			console.log("ipfsd startd: ", ipfsd.started);
+			node = api; 
+		}
+	})
+}
 
-  node = ipfsd.api; //QmcPgf7ktvpAKLy3AGBZ75zsMKZs9FLd4y8NEAfp7ekGYJ main ipfessay path
-  
-express()
+
+f.spawn({ disposable: false , repoPath: "./.ipfsdctlrepo"}, (err, ipfsd) => {
+  if (err) {	throw err;  }
+
+    if (ipfsd.initialized){
+	startDaemon(ipfsd);
+	
+    }else{
+	ipfsd.init((err)=>{
+		if(err) { throw err }
+		startDaemon(ipfsd);
+	})
+    }
+
+//ipfsd.stop(()=>console.log("IPFS Daemon is stopped! ")) 
+
+ 
+var server = express()
   .use(express.static(path.join(__dirname, 'public')))
   //.use(bodyParser.json()) //for parsing application/json
  // .use(bodyParser.urlencoded({ extended: true })) //for parsing application/x-www-form-urlencoded
@@ -63,9 +81,6 @@ express()
 				}
 			});
 		}
-		
-
-		
 	}
     });
   })
@@ -87,9 +102,10 @@ express()
 	pgInteraction(text, (err, fetch) => console.log('Successfully inserted hash into hashes db'));
     });
   })
-  .listen(PORT, () => console.log(`Listening on ${ PORT }`))
+  .listen(PORT, () => console.log(`Listening on ${ PORT }`)
+  )//express() closure
 
-});
+}); //f.spawn closure
 
 ///DAEMON FUNCTION
 function ipfsDaemonInstance(method, nd, path, data, callb ){
