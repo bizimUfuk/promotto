@@ -14,7 +14,7 @@ console.log("IpfsRepo path: ", ipfsd.repo.path);
           }
           console.log('alice')
           console.log(id)
-          //ipfsd.stop()
+          ipfsd.stop()
         })
       })
     })
