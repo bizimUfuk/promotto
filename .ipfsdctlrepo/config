@@ -1,0 +1,63 @@
+{
+  "API": {
+    "HTTPHeaders": {
+      "Access-Control-Allow-Origin": [
+        "*"
+      ],
+      "Access-Control-Allow-Methods": [
+        "PUT",
+        "POST",
+        "GET"
+      ]
+    }
+  },
+  "Addresses": {
+    "Swarm": [
+      "/ip4/127.0.0.1/tcp/0"
+    ],
+    "API": "/ip4/127.0.0.1/tcp/0",
+    "Gateway": "/ip4/127.0.0.1/tcp/0"
+  },
+  "Discovery": {
+    "MDNS": {
+      "Enabled": true,
+      "Interval": 10
+    },
+    "webRTCStar": {
+      "Enabled": true
+    }
+  },
+  "Bootstrap": [
+    "/ip4/104.236.176.52/tcp/4001/ipfs/QmSoLnSGccFuZQJzRadHn95W2CrSFmZuTdDWP8HXaHca9z",
+    "/ip4/104.131.131.82/tcp/4001/ipfs/QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ",
+    "/ip4/104.236.179.241/tcp/4001/ipfs/QmSoLPppuBtQSGwKDZT2M73ULpjvfd3aZ6ha4oFGL1KrGM",
+    "/ip4/162.243.248.213/tcp/4001/ipfs/QmSoLueR4xBeUbY9WZ9xGUUxunbKWcrNFTDAadQJmocnWm",
+    "/ip4/128.199.219.111/tcp/4001/ipfs/QmSoLSafTMBsPKadTEgaXctDQVcqN88CNLHXMkTNwMKPnu",
+    "/ip4/104.236.76.40/tcp/4001/ipfs/QmSoLV4Bbm51jM9C4gDYZQ9Cy3U6aXMJDAbzgu2fzaDs64",
+    "/ip4/178.62.158.247/tcp/4001/ipfs/QmSoLer265NRgSp2LA3dPaeykiS1J6DifTC88f5uVQKNAd",
+    "/ip4/178.62.61.185/tcp/4001/ipfs/QmSoLMeWqB7YGVLJN3pNLQpmmEk35v6wYtsMGLzSr5QBU3",
+    "/ip4/104.236.151.122/tcp/4001/ipfs/QmSoLju6m7xTh3DuokvT3886QRYqxAzb1kShaanJgW36yx",
+    "/ip6/2604:a880:1:20::1f9:9001/tcp/4001/ipfs/QmSoLnSGccFuZQJzRadHn95W2CrSFmZuTdDWP8HXaHca9z",
+    "/ip6/2604:a880:1:20::203:d001/tcp/4001/ipfs/QmSoLPppuBtQSGwKDZT2M73ULpjvfd3aZ6ha4oFGL1KrGM",
+    "/ip6/2604:a880:0:1010::23:d001/tcp/4001/ipfs/QmSoLueR4xBeUbY9WZ9xGUUxunbKWcrNFTDAadQJmocnWm",
+    "/ip6/2400:6180:0:d0::151:6001/tcp/4001/ipfs/QmSoLSafTMBsPKadTEgaXctDQVcqN88CNLHXMkTNwMKPnu",
+    "/ip6/2604:a880:800:10::4a:5001/tcp/4001/ipfs/QmSoLV4Bbm51jM9C4gDYZQ9Cy3U6aXMJDAbzgu2fzaDs64",
+    "/ip6/2a03:b0c0:0:1010::23:1001/tcp/4001/ipfs/QmSoLer265NRgSp2LA3dPaeykiS1J6DifTC88f5uVQKNAd",
+    "/ip6/2a03:b0c0:1:d0::e7:1/tcp/4001/ipfs/QmSoLMeWqB7YGVLJN3pNLQpmmEk35v6wYtsMGLzSr5QBU3",
+    "/ip6/2604:a880:1:20::1d9:6001/tcp/4001/ipfs/QmSoLju6m7xTh3DuokvT3886QRYqxAzb1kShaanJgW36yx",
+    "/dns4/wss0.bootstrap.libp2p.io/tcp/443/wss/ipfs/QmZMxNdpMkewiVZLMRxaNxUeZpDUb34pWjZ1kZvsd16Zic",
+    "/dns4/wss1.bootstrap.libp2p.io/tcp/443/wss/ipfs/Qmbut9Ywz9YEDrz8ySBSgWyJk41Uvm2QJPhwDJzJyGFsD6"
+  ],
+  "Identity": {
+    "PeerID": "QmZCDr82Aow81JyX7q6q8u2bubKzH8A4Q17qLoffanGaZK",
+    "PrivKey": "CAASqgkwggSmAgEAAoIBAQCuBDsTMpn8/DnRNBG3rkbtL2wPah6p+foZxrzGpVsbtpuYSOUvI2OFRjsU7VO3QuedKpLPDjWOQ9O18EnWm0cGzpiaiFhvUb0SaZLxfVL+TaFCL02zBzTngHLShDIiVDlXQFqE3jz5KabS/+rwtnWya5ohAlgtuudr/Smba5TCn43GWfG2iPqA1brpPIM4dP2Q3eSCKi5LguH0BNZ2VJR+7FD39ANUu6GUPvM7uIiP1wDvRV5aB7i5qiUSGyKOSsmqRSWomxCZ1ARr58bGP8c29D8dAFyyXvlrhWoEDMvZIhFemvY7UF4M5ZeySWnG0HN8uxmy904nchnTnCbRcDeTAgMBAAECggEBAIUUpzkfUbSwEGd1srcOiR+LTNDdD2Zezm44Fta0TuD63jOwS9Wo8stR0o1GkudsO0Vu8ad37m1GYfqaMV32knMaPIqyCy/XCwmxw7b7aSUiqVi8ZGet8z+4dBebEdw/HTsk9BT5ARhsSjDDlyFP6OLyd4UXDeirL6Dek5tQwwuzQlg0jlEf6kUap7ZkPyB3NXSUR//u546/bOjIdJKygf2f6ME6kIHoCldujBeYSL2WRwmjwKFZakJlag+/IQOq4f/ldsflhBCJUS/Aux8vQY8QuR/mFYdnMHZ7kCXyoVPZEasDaOU0G8BCxAQxY6c9vj1IBWYAUa1HwKVToAWjxwECgYEA+pZxk20ZsvfLAgMS4FZ2PoQPtZcLn9K+Nssb63wcmrZ2c+L+zjGoWYBJk03hDjwLOkbwIQlwPhGwdl1+Fi0cgwGI+/GuYNaLnDE75vkgSQK6thDDClP0KOlKReLcVElW8FxEv2aFzKiXWIqE3iBX3GZP/FDF41WrEV3Dn+C1IfECgYEAscZoZXMU/4LOQ0sH0LSwDoxJJ4A66tTqxishPTdkxv2xnK16fYWCSB8b+KO8lscx8rUG2s++XHsHY6gaiA3s0729pAcdVTkE+eWBXPY3zVI/Iei8DDjCYd3SqgbHQFL6ip3KXVxi7+yMAhJzeem5AF+R9fY/WlLP6SJX01iALcMCgYEAgGCoqRWgr95gw5QdjI7fHyH7BlXun5+Q0XN2x0qbQOuvfalSTwKDs+6UQwIIBYnfWqjTBqnWNgZL+Cfnm6baz4buzdxAMN5ZQdi7TpZc4uqiCvpFYbonAPqbkXgq1oeIIbWzhrcYXwQUHUlBzqaVPJWx7prW9qOB83Cs8vBk+5ECgYEAgm9V56GRdYuu9RbXDB2W04XAovflwqkn/PBmOfkruwkmyRNLvU848NvKdRsF4wcSMcb62Y71V/t4x3juxoaZDh64RuJldkMY0JXA3clV1hMTeTi+yKTYkl/kEpZYmWyIoS327Zs8iFbhvx90lK2U7J4yhOoBP69lFuP41nunyGsCgYEAudqEfT/DxZz0T4CdbAvXMbTwFWVHRq36bn55T3KL+Y3b0grlFTpZBvn4+ayGwtw+pa9DZG9wcJoSWeYE2t1+KdDD0yOUIQsdTr9tR8myhHRd+YYftyiTjz6WbhrAJHIItHyQ/hnF+9K7KCUuO/7x2U3Oa/s0eB2h5ZUmb6wBYc4="
+  },
+  "Keychain": {
+    "dek": {
+      "keyLength": 64,
+      "iterationCount": 10000,
+      "salt": "B+LXS6iVhS9D0es95gEJ/JMz",
+      "hash": "sha2-512"
+    }
+  }
+}

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <% include ../partials/header.ejs %>
+
+	<style>
+		li.motto {
+		    border: 1px solid black;
+		    margin: 0px;
+		    padding: 10px;
+		}
+	</style>
+
+
+
+</head>
+
+<body>
+
+<% include ../partials/nav.ejs %>
+
+<div class="container">
+<h2> Lifeline </h2>
+
+<ul style="list-style-type: none;">
+    <% alivemottos.forEach(function(r) { %>
+        <div style=" padding-top: 15px;" ><%- r.hash %> <span style="float: right"> <%= r.did %> @<%= r.mtime %></span>
+        <li class="motto"><%- r.extract %>
+		<input class="votingbutton" id="+<%= r.did %>" type="button" value="upVote"/>
+		<input class="votingbutton" id="-<%= r.did %>" type="button" value="downVote"/>
+	</li>
+	</div>
+    <% }); %>    
+</ul>
+
+
+
+</div>
+
+
+	<script>
+	    var vbtn = document.getElementsByClassName('votingbutton');
+	    for (var i=0; i < vbtn.length; i++){	
+
+		vbtn[i].addEventListener('click',function(e)
+		{
+		    e = e || window.event;
+		    var target = e.target || e.srcElement;
+		    console.log(target.id, target.value);
+		    document.getElementById(target.id).setAttribute("disabled","disabled");
+		    document.getElementById(target.id).style.background="rgba(255,0,0,0.6)";
+
+		    var sign = target.id.toString().substr(0,1)=="+"? "-":"+";
+		    document.getElementById(sign.concat(target.id.toString().substr(1))).setAttribute("disabled","disabled");
+		}, false);
+	    }
+
+	</script>
+</body>
+</html>

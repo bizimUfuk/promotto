@@ -22,7 +22,7 @@ const startDaemon = (ipfsd) => {
 	ipfsd.start((err, api)=>{
 		if(err) { throw err }
 		if(ipfsd.started){ 
-			console.log("ipfsd startd: ", ipfsd.started);
+			console.log("ipfsd started: ", ipfsd.started);
 			node = api; 
 		}
 	})
@@ -42,9 +42,6 @@ f.spawn({ disposable: false , repoPath: "./.ipfsdctlrepo"}, (err, ipfsd) => {
 	})
     }
 
-//ipfsd.stop(()=>console.log("IPFS Daemon is stopped! ")) 
-
- 
 var server = express()
   .use(express.static(path.join(__dirname, 'public')))
   //.use(bodyParser.json()) //for parsing application/json
@@ -60,9 +57,9 @@ var server = express()
 	});
   })
   .get('/cool', (req, res) => res.render('pages/cool', {coolface: cool()} ))
-  .get('/db', function (request, response){
+  .get('/liveline', function (request, response){
     let mottoHashes
-    const text = "SELECT * FROM hashes ORDER BY did";
+    const text = "SELECT * FROM live_hashes() ORDER BY did";
     pgInteraction(text, function (err, fetch) {
 	if(err){
 		console.log("Error is here in getting pgInteraction", err);
@@ -70,14 +67,14 @@ var server = express()
 		mottoHashes = fetch.rows;
 		
 		let mottos = []
-		for (i = 0; i<mottoHashes.length; i++){
+		for (i = 0; i < mottoHashes.length; i++){
 			let tempObj = Object.assign({}, mottoHashes[i]);
 			ipfsDaemonInstance("GET", node, mottoHashes[i].hash+"/index.html", '', function (err, extract){
 				if (err){throw err;}
 				tempObj["extract"] = extract;
 				if (tempObj.hasOwnProperty("extract")) { mottos.push(tempObj);}
 				if (mottos.length === mottoHashes.length){
-					response.render('pages/post', { results: mottos.sort(function(a,b){return b["did"]-a["did"]}) });
+					response.render('pages/liveline', { alivemottos : mottos.sort(function(a,b){return b["did"]-a["did"]}) });
 				}
 			});
 		}
@@ -85,21 +82,27 @@ var server = express()
     });
   })
   .post('/upvote', (req, res) => res.send("OK"))
-  .get('/ipfs/:hash/', function (req, res){
-    console.log("Got a hash: " + req.params['hash'] + " with GET method");
-    const text = "SELECT * FROM hashes WHERE hash='" + req.params['hash'] + "' ORDER BY did";
-    pgInteraction(text, (err, fetch) => res.render('pages/db', {results: fetch.rows}));
+  .get('/ipfs/(:hash(Qm*))?', function (req, res){ 
+	const cond = typeof req.params['hash'] === 'undefined' ? '':"WHERE hash='" + req.params['hash'] + "'";
+	const text = "SELECT * FROM hashes " + cond + " ORDER BY did";
+
+	pgInteraction(text, (err, fetch) => res.render('pages/db', {results: fetch.rows}) ); 
+  })
+  .get('/motto/(:hash(Qm*))?', function (req, res){
+	ipfsDaemonInstance("GET", node, "/ipfs/" + req.params.hash + "/index.html", "", (err, extract) => res.render('pages/motto', {extract: extract}) ) 
   })
   .put('/ipfs/:hash/:filename', function (req, res){
     ipfsDaemonInstance("PUT", node, "/ipfs/"+ req.params.hash + "/" + req.params.filename, req.body, function(error, response){
 	if (error) {
 		console.log("Error this: ", error);
-	}
-	res.setHeader("Ipfs-Hash", response[0].hash);
-	res.send();
+	}else{
 
-    	const text = "INSERT INTO hashes (hash) VALUES ('" + response[0].hash + "') ON CONFLICT DO NOTHING RETURNING hash";
-	pgInteraction(text, (err, fetch) => console.log('Successfully inserted hash into hashes db'));
+		res.setHeader("Ipfs-Hash", response[0].hash);
+		res.send();
+
+	    	const text = "INSERT INTO hashes (hash) VALUES ('" + response[0].hash + "') ON CONFLICT DO NOTHING RETURNING hash";
+		pgInteraction(text, (err, fetch) => console.log('Successfully inserted hash into hashes db'));
+	}
     });
   })
   .listen(PORT, () => console.log(`Listening on ${ PORT }`)
@@ -109,8 +112,6 @@ var server = express()
 
 ///DAEMON FUNCTION
 function ipfsDaemonInstance(method, nd, path, data, callb ){
-	console.log("in ipfsDaemonInstance. path: %s", path);
-
 	  switch (method){
 		case "GET":
 			nd.files.cat(path, function (err, res) {
@@ -134,12 +135,12 @@ function pgInteraction(text, callback){
     var client = new Client(connection);    
     client.connect();
     client.query(text, (err,res) => {
-    console.log("DB Query Result: ", res.rowCount);
 	if(err){ 
-		console.log("4- Error: ", err);
-		callback(err, null);
-	};	
-	callback(null, res);
+		callback("Error: Database operation failed!", null);
+	}else{
+		callback(null, res);
+	}
+
 	client.end();
     });
 }

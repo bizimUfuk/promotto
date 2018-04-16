@@ -12,9 +12,13 @@
 <h2>Database Results</h2>
 
 <ul>
+  <% if (results.length > 0){ %>
     <% results.forEach(function(r) { %>
-        <li><%= r.did %> - <%= r.hash %>  @<%= r.modetime %></li>
+        <li><%= r.did %> -<a href="/motto/<%= r.hash %>"> <%= r.hash %></a> @<%= r.modetime %></li>
     <% }); %>
+  <% }else{ %>
+	<p><%- "Requested hash not found! \n Maybe died, maybe never born!" %> </p>
+  <% } %>
 </ul>
 
 
