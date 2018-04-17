@@ -59,29 +59,40 @@ var server = express()
   .get('/cool', (req, res) => res.render('pages/cool', {coolface: cool()} ))
   .get('/liveline', function (request, response){
     let mottoHashes
-    const text = "SELECT * FROM live_hashes() ORDER BY did";
+    const text = "SELECT * FROM live_hashes() ORDER BY shill";
     pgInteraction(text, function (err, fetch) {
 	if(err){
 		console.log("Error is here in getting pgInteraction", err);
 	}else{	
-		mottoHashes = fetch.rows;
 		
+		mottoHashes = fetch.rows;
+
 		let mottos = []
 		for (i = 0; i < mottoHashes.length; i++){
+
+//convert life to remaining minutes
+			mottoHashes[i]['shill'] = mottoHashes[i]['shill']*60000 + new Date(mottoHashes[i].mtime).getTime();
 			let tempObj = Object.assign({}, mottoHashes[i]);
 			ipfsDaemonInstance("GET", node, mottoHashes[i].hash+"/index.html", '', function (err, extract){
 				if (err){throw err;}
 				tempObj["extract"] = extract;
 				if (tempObj.hasOwnProperty("extract")) { mottos.push(tempObj);}
+
 				if (mottos.length === mottoHashes.length){
-					response.render('pages/liveline', { alivemottos : mottos.sort(function(a,b){return b["did"]-a["did"]}) });
+console.log(mottos);
+					response.render('pages/liveline', { alivemottos : mottos.sort(function(a,b){return b["shill"]-a["shill"]}) });
 				}
 			});
 		}
 	}
     });
   })
-  .post('/upvote', (req, res) => res.send("OK"))
+  .post('/vote', function (req, res){ 
+	var body = JSON.parse(req.body);
+	text = "UPDATE hashes SET shill=shill"+body.v+"1, life=life+1 WHERE did="+ body.did;
+
+	pgInteraction(text, (err, fetch) => res.send("OK"+body.v+body.did))
+  })
   .get('/ipfs/(:hash(Qm*))?', function (req, res){ 
 	const cond = typeof req.params['hash'] === 'undefined' ? '':"WHERE hash='" + req.params['hash'] + "'";
 	const text = "SELECT * FROM hashes " + cond + " ORDER BY did";

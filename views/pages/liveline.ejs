@@ -21,40 +21,76 @@
 
 <div class="container">
 <h2> Lifeline </h2>
-
+<p id="demo"></p>
 <ul style="list-style-type: none;">
     <% alivemottos.forEach(function(r) { %>
-        <div style=" padding-top: 15px;" ><%- r.hash %> <span style="float: right"> <%= r.did %> @<%= r.mtime %></span>
+        <div style=" padding-top: 15px;" ><%- alivemottos.indexOf(r)+1 %> - <%-  r.hash %> <span style="float: right"> <%= r.did %> @<%= Math.floor(r.shill) %></span>
         <li class="motto"><%- r.extract %>
 		<input class="votingbutton" id="+<%= r.did %>" type="button" value="upVote"/>
 		<input class="votingbutton" id="-<%= r.did %>" type="button" value="downVote"/>
+<span class = "lifespan" value="<%= r.shill %>" style="position: relative; bottom: 0px; float: right"> </span>
 	</li>
+
 	</div>
     <% }); %>    
 </ul>
 
-
-
 </div>
+
+
 
 
 	<script>
 	    var vbtn = document.getElementsByClassName('votingbutton');
 	    for (var i=0; i < vbtn.length; i++){	
-
-		vbtn[i].addEventListener('click',function(e)
-		{
-		    e = e || window.event;
-		    var target = e.target || e.srcElement;
-		    console.log(target.id, target.value);
-		    document.getElementById(target.id).setAttribute("disabled","disabled");
-		    document.getElementById(target.id).style.background="rgba(255,0,0,0.6)";
-
-		    var sign = target.id.toString().substr(0,1)=="+"? "-":"+";
-		    document.getElementById(sign.concat(target.id.toString().substr(1))).setAttribute("disabled","disabled");
-		}, false);
+		vbtn[i].addEventListener('click', (e)=>disableVoted(e), false);
 	    }
 
+	    var ls = document.getElementsByClassName('lifespan');
+	    for (var j=0; j<ls.length; j++){
+		setInterval( lifetimer, 1000, ls[j]);
+	    }
+
+	function disableVoted(e){
+		e = e || window.event;
+		    var target = e.target || e.srcElement;
+		    console.log(">", target.id, target.value);
+			//disable voting button after click, and change color to RED
+		    document.getElementById(target.id).setAttribute("disabled","disabled");
+		    document.getElementById(target.id).style.background= target.id.toString().substr(0,1) =="+"?"rgba(0,255,0,0.6)" : "rgba(255,0,0,0.6)";
+			//disable other voting button after click
+		    var sign = target.id.toString().substr(0,1)=="+"? "-":"+";
+		    document.getElementById(sign.concat(target.id.toString().substr(1))).setAttribute("disabled","disabled");
+
+			//send the vote to server
+		    sendVote(target.id.toString())
+	}
+	
+	function sendVote(v){
+		var http = new XMLHttpRequest();
+		var url = "/vote";
+		var params = {"v":v.substr(0,1), 'did': v.substr(1) };
+		http.open("POST", url, true);
+	
+		//Send the proper header information along with the request
+		http.setRequestHeader("Content-type", "text/html"); 
+		
+		http.onreadystatechange = function() {//Call a function when the state changes.
+    			if(http.readyState == 4 && http.status == 200) {
+        			console.log(http.responseText);
+   			}
+		}
+		http.send(JSON.stringify(params));
+	}
+
+	function lifetimer(m){
+		var d = m.attributes[1].value-(new Date()).getTime();
+		if(d>1000){
+			m.innerHTML = (new Date(d)).toLocaleTimeString();
+		}else{
+			m.parentElement.style.background= "rgba(255,0,0,0.6)";
+		}
+	}
 	</script>
 </body>
 </html>

@@ -303,9 +303,7 @@
                     },
 
                     ipfsPUT : function(hash, data, filename, success) {
-console.log("in ipfsPUT hash:",hash);
-console.log("in ipfsPUT data:",data);
-console.log("in ipfsPUT filename:",filename);
+
                         var req = new XMLHttpRequest();
 
                         req.onreadystatechange = () => {
@@ -313,9 +311,8 @@ console.log("in ipfsPUT filename:",filename);
                                 return;
 
                             if(req.status >= 200 && req.status < 300) {
-console.log("in ipfsPUT req:",req.toString());
                                 var hash = req.getResponseHeader("Ipfs-Hash");
-console.log("in ipfsPUT sucess hash:",hash);
+
                                 success && success(hash);
                             }
                             else
