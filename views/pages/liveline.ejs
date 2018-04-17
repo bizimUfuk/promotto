@@ -25,7 +25,7 @@
 <ul style="list-style-type: none;">
 <% if (alivemottos.length > 0){ %>
     <% alivemottos.forEach(function(r) { %>
-        <div style=" padding-top: 15px;" ><%- alivemottos.indexOf(r)+1 %> - <%-  r.hash %> <span style="float: right"> <%= r.did %> @<%= Math.floor(r.shill) %></span>
+        <div style=" padding-top: 15px;" ><%- alivemottos.indexOf(r)+1 %> - <%-  r.hash %> <span style="float: right"> <%= r.did %> @<%= new Date(r.shill) %></span>
         <li class="motto"><%- r.extract %>
 		<input class="votingbutton" id="+<%= r.did %>" type="button" value="upVote"/>
 		<input class="votingbutton" id="-<%= r.did %>" type="button" value="downVote"/>
