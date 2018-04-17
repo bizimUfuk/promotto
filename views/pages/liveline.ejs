@@ -23,6 +23,7 @@
 <h2> Lifeline </h2>
 <p id="demo"></p>
 <ul style="list-style-type: none;">
+<% if (alivemottos.length > 0){ %>
     <% alivemottos.forEach(function(r) { %>
         <div style=" padding-top: 15px;" ><%- alivemottos.indexOf(r)+1 %> - <%-  r.hash %> <span style="float: right"> <%= r.did %> @<%= Math.floor(r.shill) %></span>
         <li class="motto"><%- r.extract %>
@@ -32,7 +33,10 @@
 	</li>
 
 	</div>
-    <% }); %>    
+    <% }); %>   
+<% }else{ %>
+    <p><%- "No motto alive!" %> </p>
+<% } %> 
 </ul>
 
 </div>
@@ -85,11 +89,10 @@
 
 	function lifetimer(m){
 		var d = m.attributes[1].value-(new Date()).getTime();
-		if(d>1000){
-			m.innerHTML = (new Date(d)).toLocaleTimeString();
-		}else{
-			m.parentElement.style.background= "rgba(255,0,0,0.6)";
-		}
+
+		m.innerHTML = d; //(new Date(d)).toLocaleTimeString();
+		
+		m.parentElement.style.background= d > 1000 ? "rgba(255,255,255,0.6)" : "rgba(255,0,0,0.6)";
 	}
 	</script>
 </body>

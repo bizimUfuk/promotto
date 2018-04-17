@@ -61,8 +61,9 @@ var server = express()
     let mottoHashes
     const text = "SELECT * FROM live_hashes() ORDER BY shill";
     pgInteraction(text, function (err, fetch) {
-	if(err){
+	if(err || fetch.rowCount ===0){
 		console.log("Error is here in getting pgInteraction", err);
+		response.render('pages/liveline', { alivemottos : []});
 	}else{	
 		
 		mottoHashes = fetch.rows;
@@ -70,8 +71,9 @@ var server = express()
 		let mottos = []
 		for (i = 0; i < mottoHashes.length; i++){
 
-//convert life to remaining minutes
-			mottoHashes[i]['shill'] = mottoHashes[i]['shill']*60000 + new Date(mottoHashes[i].mtime).getTime();
+		//convert life to remaining minutes
+		mottoHashes[i]['shill'] = mottoHashes[i]['shill']*60000 + new Date(mottoHashes[i].mtime).getTime();
+
 			let tempObj = Object.assign({}, mottoHashes[i]);
 			ipfsDaemonInstance("GET", node, mottoHashes[i].hash+"/index.html", '', function (err, extract){
 				if (err){throw err;}
@@ -79,7 +81,7 @@ var server = express()
 				if (tempObj.hasOwnProperty("extract")) { mottos.push(tempObj);}
 
 				if (mottos.length === mottoHashes.length){
-console.log(mottos);
+
 					response.render('pages/liveline', { alivemottos : mottos.sort(function(a,b){return b["shill"]-a["shill"]}) });
 				}
 			});
