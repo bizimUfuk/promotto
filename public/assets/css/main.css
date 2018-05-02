@@ -51,7 +51,7 @@ header h2 {
     right: 0;
     top: 50%;
     transform: translate3d(0,-50%,0);
-    font-size: 0.9em;
+    font-size: 0.6em;
 }
 .attr a {
     color: #7abbed;

@@ -9,12 +9,12 @@
 <% include ../partials/nav.ejs %>
 
 <div class="container">
-<h2>Database Results</h2>
-
+<h2><%- title %> </h2>
+<h3><%- results.length %> records found!</h3>
 <ul>
   <% if (results.length > 0){ %>
     <% results.forEach(function(r) { %>
-        <li><%= r.did %> -<a href="/motto/<%= r.hash %>"> <%= r.hash %></a> @<%= r.modetime %></li>
+        <li><%= r.did %> -<a href="/ipfs/<%= r.hash %>/" target="blank"> <%= r.hash %></a> @<%= r.modetime %></li>
     <% }); %>
   <% }else{ %>
 	<p><%- "Requested hash not found! \n Maybe died, maybe never born!" %> </p>

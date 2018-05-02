@@ -1,0 +1,19 @@
+
+Âº<html><head><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/ipfs/QmSMwjABWVBsnS3Gha3xmjb5zKYndvFrS74iCAwykQCqcY/typesettings-1.2-min.css"><title>An IPFessay</title><style>footer {padding: 3em 0; text-align: center; font-size: 1.4em; border-top: 1px solid #e1e1e1;}a:hover { color: #222; border-bottom-color: #555; }@media only screen and (min-width: 1441px) { .typesettings { font-size: 2.4em; } }.typesettings { max-width: 33em; margin: 0 auto; }a { color: #aeaeae; border-bottom: 1px dotted #aeaeae; text-decoration: none; }</style></head><body><article class="typesettings golden"><p>bizi bekleyen yere</p>
+<p><strong>kalÄ±n</strong><br><em>italik</em></p>
+<h1 id="header">header</h1>
+<blockquote>
+<p>quote</p>
+</blockquote>
+<ul>
+<li>madde1</li>
+<li><p>madde2</p>
+</li>
+<li><p>numara</p>
+</li>
+<li>numara</li>
+</ul>
+<p><a href="www.promotto.herokuapp.com">www.promotto.herokuapp.com</a></p>
+<p>logo&lt;<br><img src="logo.jpg" alt=""></p>
+<p>.Ã§.<br><img src="logo.jpg" alt="www.google.com"><br>Ã§Ã§Ã§</p>
+</article></body></html>º

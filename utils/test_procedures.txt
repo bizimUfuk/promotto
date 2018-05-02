@@ -1,0 +1,13 @@
+load_mainpage: GET root url
+enter_motto: enter message without issue
+add_motto_to_ipfs: PUT hash-filename
+record_motto: POST hash in DB
+view_motto: GET hash-filename
+view_liveline: GET hashes from DB &&
+		GET hashes-filenames
+view_peers: GET swarm peers
+add_peer: GET swarm connect
+bootstrap_peers: GET swarm bootstrap
+
+
+

@@ -1,3 +1,9 @@
+
+var u = require('./src/mottoUtils');
+
+var mottoDB = require('./src/mottoDB');
+var mottoIPFS = require('./src/mottoIPFS');
+
 const IPFSFactory = require('ipfsd-ctl')
 const f = IPFSFactory.create({ type: 'proc', exec: require('ipfs')})
 
@@ -7,40 +13,31 @@ var bodyParser = require('body-parser');
 const path = require('path')
 const PORT = process.env.PORT || 5000
 
-var cool = require('cool-ascii-faces');
-const { Pool, Client } = require('pg');
-
-const connection = {
-  connectionString: process.env.DATABASE_URL || "postgres://test2:postgres@localhost:5432/test2" ,
-  ssl: true,
-}
-
 var hash = "";
-let node;
+var node;
 
 const startDaemon = (ipfsd) => {
 	ipfsd.start((err, api)=>{
 		if(err) { throw err }
 		if(ipfsd.started){ 
-			console.log("ipfsd started: ", ipfsd.started);
 			node = api; 
 		}
 	})
 }
 
 
-f.spawn({ disposable: false , repoPath: "./.ipfsdctlrepo"}, (err, ipfsd) => {
+f.spawn({ disposable: false, repoPath: "./.ipfsdctlrepo"}, (err, ipfsd) => {
   if (err) {	throw err;  }
 
     if (ipfsd.initialized){
 	startDaemon(ipfsd);
-	
     }else{
 	ipfsd.init((err)=>{
 		if(err) { throw err }
 		startDaemon(ipfsd);
 	})
     }
+    
 
 var server = express()
   .use(express.static(path.join(__dirname, 'public')))
@@ -50,33 +47,38 @@ var server = express()
   .use(bodyParser.raw({inflate: true, limit: '100kb', type: 'text/html'}))
   .set('views', path.join(__dirname, 'views'))
   .set('view engine', 'ejs')
+.get('*',(req, res, next)=>{console.log("requested-->", req.originalUrl );
+next();
+})
+.get("/testing", (req, res, next)=> {
+	
+})
   .get('/', function (req, res){
-	ipfsDaemonInstance("GET", node, "QmcPgf7ktvpAKLy3AGBZ75zsMKZs9FLd4y8NEAfp7ekGYJ/index.html",'', function (err, extract){
-		if (err){ res.render('pages/index', {mottoArea: "Error: Ipfs version of index.html couldnt be retriewed!" })};
-		res.render('pages/index', {mottoArea: extract });
+	mottoIPFS.ipfsCAT(node, "/ipfs/QmboGVKUDPJG2U1QYMtXoQ1EDWVxPAHZBYfHvpaV47NiT2/index.html", function (err, extract){
+		res.render('pages/index', { mottoArea: (err ? err : extract) });
 	});
+
   })
-  .get('/cool', (req, res) => res.render('pages/cool', {coolface: cool()} ))
   .get('/liveline', function (request, response){
-    let mottoHashes
-    const text = "SELECT * FROM live_hashes() ORDER BY shill";
-    pgInteraction(text, function (err, fetch) {
-	if(err || fetch.rowCount ===0){
-		console.log("Error is here in getting pgInteraction", err);
-		response.render('pages/liveline', { alivemottos : []});
-	}else{	
-		
-		mottoHashes = fetch.rows;
 
+ 	const text = "SELECT * FROM live_hashes() ORDER BY shill";
+	mottoDB.mottoQry(text, function (err, fetch) {
+
+		if(err || fetch.rows.length <=0) response.render('pages/liveline', { alivemottos: (err ? err : []) })
+
+		let mottoHashes = fetch.rows;
 		let mottos = []
-		for (i = 0; i < mottoHashes.length; i++){
 
-		//convert life to remaining minutes
-		mottoHashes[i]['shill'] = mottoHashes[i]['shill']*60000 + new Date(mottoHashes[i].mtime).getTime();
+		for (i = 0; i < mottoHashes.length; i++){
+			let hashee = mottoHashes[i].hash;
+
+			//convert life to remaining minutes
+			mottoHashes[i]['shill'] = mottoHashes[i]['shill']*60000 + new Date(mottoHashes[i].mtime).getTime();
 
 			let tempObj = Object.assign({}, mottoHashes[i]);
-			ipfsDaemonInstance("GET", node, mottoHashes[i].hash+"/index.html", '', function (err, extract){
-				if (err){throw err;}
+
+			mottoIPFS.ipfsCAT(node, mottoHashes[i].hash+"/index.html", function (err, extract){
+				if (err){console.log("Cant get " + hashee + "! \n", err);}
 				tempObj["extract"] = extract;
 				if (tempObj.hasOwnProperty("extract")) { mottos.push(tempObj);}
 
@@ -86,75 +88,56 @@ var server = express()
 				}
 			});
 		}
-	}
-    });
+       });
   })
   .post('/vote', function (req, res){ 
-	var body = JSON.parse(req.body);
-	text = "UPDATE hashes SET shill=shill"+body.v+"1, life=life+1 WHERE did="+ body.did;
-
-	pgInteraction(text, (err, fetch) => res.send("OK"+body.v+body.did))
+	mottoDB.mottoVote(req, (fetch) => res.send(fetch) );
   })
-  .get('/ipfs/(:hash(Qm*))?', function (req, res){ 
+  .get('/db/(:hash(Qm*))?', function (req, res){ 
 	const cond = typeof req.params['hash'] === 'undefined' ? '':"WHERE hash='" + req.params['hash'] + "'";
 	const text = "SELECT * FROM hashes " + cond + " ORDER BY did";
 
-	pgInteraction(text, (err, fetch) => res.render('pages/db', {results: fetch.rows}) ); 
+	mottoDB.mottoQry(text, (err, fetch) => res.render('pages/db', {title: "Database Results", results: err ? err : fetch.rows}) ); 
   })
-  .get('/motto/(:hash(Qm*))?', function (req, res){
-	ipfsDaemonInstance("GET", node, "/ipfs/" + req.params.hash + "/index.html", "", (err, extract) => res.render('pages/motto', {extract: extract}) ) 
+  .get('/ipfs.ls/(:path(Qm*)(/:sub)?)?', function (req, res){
+	let pat  = req.params.sub  === undefined ? req.params.path : req.params.path + "/" + req.params.sub
+	mottoIPFS.ipfsLS(node, pat, function (err, list){
+		let rendering = '';
+		list.forEach((lnk)=>{ rendering += "<br> >>>type: " + lnk.type + " hash: " + lnk.hash + " size: " + lnk.size + " name: " + lnk.name + "\n" } ); 
+		res.send("OK\n"+ rendering)
+	})
   })
-  .put('/ipfs/:hash/:filename', function (req, res){
-    ipfsDaemonInstance("PUT", node, "/ipfs/"+ req.params.hash + "/" + req.params.filename, req.body, function(error, response){
-	if (error) {
-		console.log("Error this: ", error);
-	}else{
+  .get('/ipfs/:hash\/?(\/:sub)?', function (req, res){
+	let hash = req.params.hash;
+	let sub = typeof req.params.sub !== 'undefined' ? req.params.sub : "";
 
-		res.setHeader("Ipfs-Hash", response[0].hash);
+	mottoIPFS.ipfsCAT(node, "/ipfs/" + hash + "/" + sub, (err, extract) => res.end(err ? err : extract) );
+  })
+  .put('/ipfs(/:hash)?((/)?:filename)?', function (req, res){
+	mottoIPFS.ipfsPUT(node, req.params.hash, {filename: req.params.filename, filebuffer: req.body}, function(error, response){
+		if(error) res.status(500).send("Failed to put IPFS hash")
+
+		res.setHeader("Ipfs-Hash", response)
+		res.send("ipfsPUT:OK");
+	});
+  })
+  .get('/ipfsDB/', (req, res)=>{
+	let record = req.headers['wrapper'];
+	let qry = "INSERT INTO hashes (hash) VALUES ('" + record + "') ON CONFLICT DO NOTHING RETURNING hash";
+	mottoDB.mottoQry(qry, (err, dBres) => {
+		u.logdebug('Successfully inserted %s into hashes db', record, dBres && dBres.rowCount);
+		res.write("inserted", dBres & dBres.rowCount);
 		res.send();
-
-	    	const text = "INSERT INTO hashes (hash) VALUES ('" + response[0].hash + "') ON CONFLICT DO NOTHING RETURNING hash";
-		pgInteraction(text, (err, fetch) => console.log('Successfully inserted hash into hashes db'));
-	}
-    });
+	})
   })
+  .get('/swarm/:type(peers|connect|bootstrap)(\/)?(:peerhash(*))?', (request,response) => {
+	mottoIPFS.swarmPeers(node, request.params, (pl)=>{	response.render('pages/db', {results: pl, title: "Peer List"})	})	  })
   .listen(PORT, () => console.log(`Listening on ${ PORT }`)
   )//express() closure
 
 }); //f.spawn closure
 
-///DAEMON FUNCTION
-function ipfsDaemonInstance(method, nd, path, data, callb ){
-	  switch (method){
-		case "GET":
-			nd.files.cat(path, function (err, res) {
-				if (err) { res=''; }
-				callb(null, res.toString('utf-8'));
-			});
-			break;
-		case "PUT":
-			nd.files.add([{content: data, path: path}],[{wrapWithDirectory: true, recursive: true}], function (err, res) {
-				if (err) { 
-					return callb(new Error("Errrr: " + err));
-				}
-				callb(null, res);
-			});
-			break;
-	  }
-}
 
-///DATABASE FUNCTION
-function pgInteraction(text, callback){
-    var client = new Client(connection);    
-    client.connect();
-    client.query(text, (err,res) => {
-	if(err){ 
-		callback("Error: Database operation failed!", null);
-	}else{
-		callback(null, res);
-	}
 
-	client.end();
-    });
-}
+
 
