@@ -13,8 +13,10 @@ var bodyParser = require('body-parser');
 const path = require('path')
 const PORT = process.env.PORT || 5000
 
+var app = express();
 var hash = "";
 var node;
+
 
 const startDaemon = (ipfsd) => {
 	ipfsd.start((err, api)=>{
@@ -24,7 +26,6 @@ const startDaemon = (ipfsd) => {
 		}
 	})
 }
-
 
 f.spawn({ disposable: false, repoPath: "./.ipfsdctlrepo"}, (err, ipfsd) => {
   if (err) {	throw err;  }
@@ -37,66 +38,30 @@ f.spawn({ disposable: false, repoPath: "./.ipfsdctlrepo"}, (err, ipfsd) => {
 		startDaemon(ipfsd);
 	})
     }
-    
 
-var server = express()
-  .use(express.static(path.join(__dirname, 'public')))
+app.use(express.static(path.join(__dirname, 'public')))
   //.use(bodyParser.json()) //for parsing application/json
  // .use(bodyParser.urlencoded({ extended: true })) //for parsing application/x-www-form-urlencoded
  // .use(bodyParser.text({ type: 'text/html' }))
   .use(bodyParser.raw({inflate: true, limit: '100kb', type: 'text/html'}))
   .set('views', path.join(__dirname, 'views'))
   .set('view engine', 'ejs')
-.get('*',(req, res, next)=>{console.log("requested-->", req.originalUrl );
+.get('*',(req, res, next)=>{console.log("requested--> method: %s \t url: %s \t path: %s \t orgUrl: %s", req.method, req.url, req.path, req.originalUrl );
 next();
 })
-.get("/testing", (req, res, next)=> {
-	
-})
-  .get('/', function (req, res){
-	mottoIPFS.ipfsCAT(node, "/ipfs/QmboGVKUDPJG2U1QYMtXoQ1EDWVxPAHZBYfHvpaV47NiT2/index.html", function (err, extract){
+  .get('/', function (req, res){		//original url: Qma5dyvFSj7f6EiqRL7xViJ7SMLEz4fpihNmzGhRjf4jwK
+	mottoIPFS.ipfsCAT(node, "/ipfs/Qma5dyvFSj7f6EiqRL7xViJ7SMLEz4fpihNmzGhRjf4jwK/index.html", function (err, extract){ 
 		res.render('pages/index', { mottoArea: (err ? err : extract) });
 	});
-
   })
-  .get('/liveline', function (request, response){
-
- 	const text = "SELECT * FROM live_hashes() ORDER BY shill";
-	mottoDB.mottoQry(text, function (err, fetch) {
-
-		if(err || fetch.rows.length <=0) response.render('pages/liveline', { alivemottos: (err ? err : []) })
-
-		let mottoHashes = fetch.rows;
-		let mottos = []
-
-		for (i = 0; i < mottoHashes.length; i++){
-			let hashee = mottoHashes[i].hash;
-
-			//convert life to remaining minutes
-			mottoHashes[i]['shill'] = mottoHashes[i]['shill']*60000 + new Date(mottoHashes[i].mtime).getTime();
-
-			let tempObj = Object.assign({}, mottoHashes[i]);
-
-			mottoIPFS.ipfsCAT(node, mottoHashes[i].hash+"/index.html", function (err, extract){
-				if (err){console.log("Cant get " + hashee + "! \n", err);}
-				tempObj["extract"] = extract;
-				if (tempObj.hasOwnProperty("extract")) { mottos.push(tempObj);}
-
-				if (mottos.length === mottoHashes.length){
-
-					response.render('pages/liveline', { alivemottos : mottos.sort(function(a,b){return b["shill"]-a["shill"]}) });
-				}
-			});
-		}
-       });
-  })
+  .get('/liveline(\/:hash)?(\/:sub)?', liveline)
   .post('/vote', function (req, res){ 
 	mottoDB.mottoVote(req, (fetch) => res.send(fetch) );
   })
-  .get('/db/(:hash(Qm*))?', function (req, res){ 
+  .get('/db/(:hash)?', function (req, res){ 
 	const cond = typeof req.params['hash'] === 'undefined' ? '':"WHERE hash='" + req.params['hash'] + "'";
-	const text = "SELECT * FROM hashes " + cond + " ORDER BY did";
-
+	var text = "SELECT * FROM hashes " + cond + " ORDER BY did";
+	if (req.params.hash === "live_hashes") text = "SELECT live_hashes()";
 	mottoDB.mottoQry(text, (err, fetch) => res.render('pages/db', {title: "Database Results", results: err ? err : fetch.rows}) ); 
   })
   .get('/ipfs.ls/(:path(Qm*)(/:sub)?)?', function (req, res){
@@ -110,13 +75,15 @@ next();
   .get('/ipfs/:hash\/?(\/:sub)?', function (req, res){
 	let hash = req.params.hash;
 	let sub = typeof req.params.sub !== 'undefined' ? req.params.sub : "";
-
-	mottoIPFS.ipfsCAT(node, "/ipfs/" + hash + "/" + sub, (err, extract) => res.end(err ? err : extract) );
+	let path = "/ipfs/" + hash + "/" + sub;
+	mottoIPFS.ipfsCAT(node, path, function (err, extract) {
+		res.end(err ? err : extract);
+	});
   })
   .put('/ipfs(/:hash)?((/)?:filename)?', function (req, res){
 	mottoIPFS.ipfsPUT(node, req.params.hash, {filename: req.params.filename, filebuffer: req.body}, function(error, response){
 		if(error) res.status(500).send("Failed to put IPFS hash")
-
+		u.logdebug("response from ipfsPUT for %s: %o",  req.params.hash, response);
 		res.setHeader("Ipfs-Hash", response)
 		res.send("ipfsPUT:OK");
 	});
@@ -138,6 +105,45 @@ next();
 }); //f.spawn closure
 
 
+function liveline (request, response){
+	const cond = typeof request.params.hash === 'undefined' ? '' : "WHERE hash = '" + request.params.hash + "' ";
+ 	const text = "SELECT * FROM live_hashes() " + cond;
 
+	mottoDB.mottoQry(text, function (err, fetch) {
 
+		const liveHashes = fetch.rows.slice();
+
+		if(err || (Object.keys(liveHashes).length === 0 && liveHashes.constructor === Array) ) response.render('pages/liveline', { alivemottos: (err ? err : []) })
+
+		var mottos = [];		//collection to hold the mottos with extract property
+		var counter = 0;
+
+		for (let i = 0; i < liveHashes.length; i++){
+
+			let tempObj = Object.assign({}, liveHashes[i]);
+
+			//convert life to remaining minutes
+			tempObj.shill = tempObj['shill']*60000 + new Date(tempObj.mtime).getTime();
+			let mottopath = "/ipfs/" + tempObj.hash + "/index.html";
+			mottoIPFS.ipfsCAT(node, mottopath, function (err, extract) {
+
+				counter ++;
+				if (err) return;
+
+				extract = u.pathfix(extract, "src=\"", "src=\"/ipfs/" + tempObj.hash + "/"); 	///TODO: Fix this workaround for relative paths in index.html files 
+
+				tempObj["extract"] = extract;
+				
+				if(!err) mottos.push(tempObj);
+
+				if (counter === liveHashes.length) {
+					response.render('pages/liveline', { alivemottos : mottos.sort(function(a,b){return b["shill"]-a["shill"]}) }, (error,html)=>{
+						response.end(html);
+					});
+				}
+			});
+
+		} ///for closure
+       }); ///mottoQry closure
+}
 

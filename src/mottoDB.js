@@ -17,8 +17,10 @@ function pgDB(text, callback){
     var client = new Client(connection);    
     client.connect();
     client.query(text, (err,res) => {
+	u.logdebug("Error pgDB:", err);
+
 	if(err){ 
-		callback("Error: Database operation failed!", null);
+		callback("Error: Database operation failed!", new Object());
 	}else{
 		callback(null, res);
 	}
@@ -27,8 +29,6 @@ function pgDB(text, callback){
     });
 }
 ///POSTGRESQL END
-
-
 
 
 function mottoQry (text, cb) {

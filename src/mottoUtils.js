@@ -20,9 +20,26 @@ function logdebug(){
 	return;
 }
 
+
+/// temporary solution to fix relative path issue
+function pathfix(t, from="src=\"", to="src=\"/", offset = 0){
+	t=t.toString();
+	let i= t.slice(offset).indexOf(from);
+	if (i === -1) return t ;
+	let pre = t.slice(0, i);
+	let pos = t.slice(i);
+
+	if(pos.slice(5, 12) !== "http://" && pos.slice(5, 6) !== "/") {
+		pos = pos.replace(from, to);
+		return pre + pathfix(pos, i + 3);
+	}
+}
+
+
 module.exports = {
 	logdebug: logdebug,
 	readfromtxtfile: readfromtxtfile,
+	pathfix: pathfix,
 };
 
 

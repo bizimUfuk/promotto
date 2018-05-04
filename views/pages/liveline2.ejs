@@ -23,24 +23,17 @@
 <h2> Lifeline </h2>
 <p id="demo"></p>
 <ul style="list-style-type: none;">
-<% if (alivemottos.length > 0 ){ %>
-    <% alivemottos.forEach(function(r) { %>
-        <div style=" padding-top: 15px;" >
-		<a href="/liveline/<%= r.hash %>/"> <%- r.hash %> </a> <span style="float: right"> <%= r.did %> @<%= new Date(r.shill) %></span>
 
-        <li class="motto">
-		<%- r.extract %>
-		<input class="votingbutton" id="+<%= r.did %>" type="button" value="upVote"/>
-		<input class="votingbutton" id="-<%= r.did %>" type="button" value="downVote"/>
-									<span class = "lifespan" value="<%= r.shill %>" style="position: relative; bottom: 0px; float: right"> </span>
-	</li>
+<% if ( livemottos ){ %>
 
-	</div>
-    <% }); %>   
+    <%- livemottos %>
+   
 <% }else{ %>
 
     <p><%- "No motto alive!" %> </p>
 <% } %> 
+
+
 </ul>
 
 </div>

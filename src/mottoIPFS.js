@@ -6,42 +6,45 @@ var u = require("./mottoUtils");
 'use strict';
 
 
+
 ///IPFS FUNCTIONS
 function ipfsCAT(nd, path, goback){
+
 	u.logdebug("ipfsCAT path:", path);
-	let pieces = path.split("/");
-	let ipfspiece = pieces.indexOf("ipfs");	
+	var pieces = path.split("/");
+	var ipfspiece = pieces.indexOf("ipfs");	
 
-	if ( isValidHash(pieces[ipfspiece+1]) === false ) goback ("Err: Not valid hash", null);
-
+	if ( isValidHash(pieces[ipfspiece+1]) === false ) goback("Err: Not valid hash", null);
+								
 	ipfsLS(nd, path, (err, subItem)=> {
 
-		if (err) goback(err, null)
-		if (subItem === null) goback (null, "Err: Trying to retrieve empty folder");
-
+		if (err || subItem === null) goback("Err: ipfsLS error in ipfsCAT. path: " + path.toString(), null );
+		
 		if (subItem && subItem.length > 0) {
-
+			u.logdebug("Path- %s is a directory dag. Rolling out %d links!", path, subItem.length); 
 			let specFileIndex = -1;
 			subItem.forEach((itm, ind)=>{if ( isSpecFile(itm.name) ) specFileIndex = ind; })
 
 			if (specFileIndex >= 0){
-
-				ipfsCAT(nd, path + subItem[specFileIndex].name, (err, res)=> goback( err, res ) )
+				if(path.slice(-1) !== "/") path = path + "/";
+				ipfsCAT(nd, path + subItem[specFileIndex].name, (err, res) => goback(err, res) );
 
 			}else{ ///no html file inside
 
 				let itemlist = "<html><body><ul>";
 				subItem.forEach((it)=> itemlist += "<li><a href='" + path + it.name + "'>" + it.name + "</a></li>\n")
-				goback (null, itemlist + "</ul></body></html>")
+				itemlist += "</ul></body></html>";
+				goback( null, itemlist);
 			}
 		}else if (subItem && subItem.length === 0 ){
-
+			u.logdebug("Catching file type dag > %s", path); 
 			nd.files.cat(path, (err, res) =>{
-				if (err) err = err.toString('utf-8');
-				goback (err, res)})
+				u.logdebug("\t %s cat result: ", path, err ? "Fail!" : "Success");
+				goback(null, res);
+			});
 		}else{
-			console.log("subItem > null: ", subItem); 
-			goback(null, null);
+			console.log("subItem not null but > : ", subItem); 
+			goback( "Err -> subItem.type: " + typeof subItem + ".", null);
 		}
 	
 	});
@@ -55,13 +58,14 @@ function ipfsLS(nd, dag, goback){
 } 
 
 function ipfsPUT(nd, prevDir, data, goback){
-	var aData = [];  /// temporary collection to push the content of the prevDir
+	var aData = [];  				/// temporary collection to push the content of the prevDir
 	var newData = {content: data.filebuffer, path: "./" + data.filename };  /// new data do add into prevDir
 
 	ipfsLS(nd, prevDir, (err, pfiles)=>{ 		///check whether the prevDir is a Directory (wrapper hash) or something else (empty dir, any hash) 
 		if (err) throw err;
 
 		if (pfiles.length !== 0){		///prevDir has pfiles inside
+
 			pfiles.forEach((pfile)=>{
 				nd.files.cat(pfile.hash, (err, res) => {
 
@@ -74,22 +78,29 @@ function ipfsPUT(nd, prevDir, data, goback){
 						aData.push(newData);
 
 						nd.files.add(aData, [{wrapWithDirectory: true, recursive: true}] , function (err, addedfiles){
-							if (err) goback(err, null);
+							if (err) goback("Error in ipfsPUT. pfiles.length !==0 >> "+err, null);
 							u.logdebug("FilesAdded into prev Dir DAG: ", addedfiles);
-							goback(null, addedfiles);
+							let returnhash = addedfiles[addedfiles.findIndex(isWrapper)].hash;
+							if (!isValidHash(returnhash)){
+								u.logdebug("Err: returnhash-%s is not a valid hash", returnhash.toString());
+								goback("Err: returnhash is not a valid hash!", null);
+							}else{
+								goback(null, returnhash);
+							}
 						});
 					}	
 				}); ///nd.files.cat closure
 			});
 		}else if (JSON.stringify(pfiles) === "[]"){		///prevDir is either emptyDir, or some other thing to ignore
-			nd.files.add([newData], [{wrapWithDirectory: true, recursive: true}],(err, response)=>{
-				if (err) goback("Error in ipfsPUT "+err.toString(), null);
 
-				u.logdebug("FilesAdded into a new Dir DAG: ", response);
-				let returnhash = response[response.findIndex(isWrapper)].hash;
+			nd.files.add([newData], [{wrapWithDirectory: true, recursive: true}],(err, addedfiles)=>{
+				if (err) goback("Error in ipfsPUT. pfiles === [] >>"+err.toString(), null);
+
+				u.logdebug("FilesAdded into a new Dir DAG: ", addedfiles);
+				let returnhash = addedfiles[addedfiles.findIndex(isWrapper)].hash;
 				if (!isValidHash(returnhash)){
-					u.logdebug("returnhash-%s is not a valid hash", returnhash.toString());
-					goback("returnhash is not a valid hash!", null);
+					u.logdebug("Err: returnhash-%s is not a valid hash", returnhash.toString());
+					goback("Err: returnhash is not a valid hash!", null);
 				}else{
 					goback(null, returnhash);
 				}
@@ -172,6 +183,7 @@ console.log("-->in mottoIPFS.swarmPeers");
  }
 
 module.exports = {
+	//startDaemon: startDaemon,
 	ipfsPUT: ipfsPUT,
 	ipfsCAT: ipfsCAT,
 	ipfsLS: ipfsLS,

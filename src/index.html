@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>proMotto - Easily publish uncensorable posts</title>
+        <title> Aline | Motto - written on water surface!  </title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <link rel="stylesheet" href="./assets/css/main.css">
@@ -228,7 +228,7 @@
 
                         Utilities.removeClass(document.body, 'noscroll');
                         Utilities.removeClass(document.querySelector('#image-overlay'), 'open');
-                        Utilities.removeClass(document.querySelector('.overlay .pin-stats'), 'open');
+                        Utilities.removeClass(document.querySelector('.overlay '), 'open');
 
                         Utilities.removeClass(document.querySelector('.field[data-name="hash"]'), 'error');
                         Utilities.removeClass(document.querySelector('.field[data-name="name"]'), 'error');
@@ -266,6 +266,7 @@
                                 return;
 
                             var changeText = change.text[0];
+
                             var isImageButton = (changeText.length > 0 && "![](http://)".localeCompare(changeText) == 0);
                             var isLinkButton = (changeText.length > 0 && "[](http://)".localeCompare(changeText) == 0);
 
@@ -467,8 +468,6 @@ req.send();
 
                         document.querySelector('#overlay a#essay-link').href = "/ipfs/" + hash + "/";
                         document.querySelector('#overlay a#essay-link').innerText = "/ipfs" + hash;
-
-                        document.querySelector('#overlay #pin-link').innerText = "$ ipfs pin add " + hash;
                     },
 
                     renderPage: function(mdHTML, title) {
@@ -524,8 +523,10 @@ req.send();
 
         </header>
         <article>
-            <textarea id="text-input" style="width: 100%;" oninput="this.editor.update()" rows="5" cols="20">type here
-	    </textarea>
+            <textarea id="text-input" style="width: 100%;" oninput="this.editor.update()" rows="5" cols="20"> # header
+> 
+ 
+</textarea>
         </article>
 
         <footer>
