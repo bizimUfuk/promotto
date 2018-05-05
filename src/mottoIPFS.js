@@ -113,7 +113,7 @@ function ipfsPUT(nd, prevDir, data, goback){
 
 
 	}); ///ipfsLS closure
-}
+} ///ipfsPUT
 
 
 
@@ -187,5 +187,6 @@ module.exports = {
 	ipfsPUT: ipfsPUT,
 	ipfsCAT: ipfsCAT,
 	ipfsLS: ipfsLS,
+	ipfsPIN: ipfsPIN,
 	swarmPeers: swarmPeers,
 };
