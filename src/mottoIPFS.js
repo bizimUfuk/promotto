@@ -187,6 +187,5 @@ module.exports = {
 	ipfsPUT: ipfsPUT,
 	ipfsCAT: ipfsCAT,
 	ipfsLS: ipfsLS,
-	ipfsPIN: ipfsPIN,
 	swarmPeers: swarmPeers,
 };
