@@ -97,8 +97,8 @@ next();
 		res.send();
 	})
   })
-  .get('/ipfs.stat/', (req, res)=> node.repo.stat((err,stat)=> res.send(stat)  )   )
-  .get('/ipfs.gc/', (req, res)=> node.repo.stat((err,stat)=> res.send(stat)  )   )
+  .get('/ipfs.stat/', (req, res)=> node.repo.stat((err,stat)=> res.send(err?err:stat)  )   )
+  .get('/ipfs.gc/', (req, res)=> node.repo.gc((err,gc)=> res.send(err?err:gc)  )   )
   .get('/swarm/:type(peers|connect|bootstrap)(\/)?(:peerhash(*))?', (request,response) => {
 	mottoIPFS.swarmPeers(node, request.params, (pl)=>{	response.render('pages/db', {results: pl, title: "Peer List"})	})	  })
   .listen(PORT, () => console.log(`Listening on ${ PORT }`)
