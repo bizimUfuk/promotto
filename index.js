@@ -49,8 +49,8 @@ app.use(express.static(path.join(__dirname, 'public')))
 .get('*',(req, res, next)=>{console.log("requested--> method: %s \t url: %s \t path: %s \t orgUrl: %s", req.method, req.url, req.path, req.originalUrl );
 next();
 })
-  .get('/', function (req, res){		//original url: Qma5dyvFSj7f6EiqRL7xViJ7SMLEz4fpihNmzGhRjf4jwK
-	mottoIPFS.ipfsCAT(node, "/ipfs/Qma5dyvFSj7f6EiqRL7xViJ7SMLEz4fpihNmzGhRjf4jwK/index.html", function (err, extract){ 
+  .get('/', function (req, res){		//original url: QmdMnYXQ8xH5bxkAN41mR3g9YzB9N1zZhTzGxR1qk9WUyQ
+	mottoIPFS.ipfsCAT(node, "/ipfs/QmdMnYXQ8xH5bxkAN41mR3g9YzB9N1zZhTzGxR1qk9WUyQ/index.html", function (err, extract){ 
 		res.render('pages/index', { mottoArea: (err ? err : extract) });
 	});
   })
