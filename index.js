@@ -97,6 +97,7 @@ next();
 		res.send();
 	})
   })
+  .get('/ipfs.gc/', (req, res)=> node.repo.stat({human:true}, (err,stat)=> res.send(stat)  )   )
   .get('/swarm/:type(peers|connect|bootstrap)(\/)?(:peerhash(*))?', (request,response) => {
 	mottoIPFS.swarmPeers(node, request.params, (pl)=>{	response.render('pages/db', {results: pl, title: "Peer List"})	})	  })
   .listen(PORT, () => console.log(`Listening on ${ PORT }`)
