@@ -1,11 +1,43 @@
 
-
+'use strict';
 var u = require("./mottoUtils");
 
 
-'use strict';
+const IPFSFactory = require('ipfsd-ctl')
+const f = IPFSFactory.create({ type: 'proc', exec: require('ipfs')})
 
+const startDaemon = (ipfsd, cb) => {
+	ipfsd.start((err, api)=>{
+		if(err) { throw err }
+		if( ipfsd.started ){ 
+			cb( api ); 
+		}
+	})
+}
 
+function spawnNode(cb){
+	f.spawn({ disposable: false, repoPath: "./.ipfsdctlrepo"}, (err, ipfsd) => {
+	  if (err) {	throw err;  }
+
+	    if (ipfsd.initialized){
+		startDaemon(ipfsd, (node) => cb(node) );
+	    }else{
+		ipfsd.init((err)=>{
+			if(err) { throw err }
+			startDaemon(ipfsd, (node) => cb(node) );
+		})
+	    }
+
+	});
+}
+
+const mottoIPFS = {
+	spawnNode: spawnNode,
+	ipfsPUT: ipfsPUT,
+	ipfsCAT: ipfsCAT,
+	ipfsLS: ipfsLS,
+	swarmPeers: swarmPeers,
+};
 
 ///IPFS FUNCTIONS
 function ipfsCAT(nd, path, goback){
@@ -142,7 +174,7 @@ function isWrapper(h){
 
 ///SWARM FUNCTIONS
 function swarmPeers(nd, phash, cb){
-console.log("-->in mottoIPFS.swarmPeers");
+	u.logdebug("-->in mottoIPFS.swarmPeers");
 	var peerList = [];
 	var type = phash['type'];
 	var peerhash = phash['peerhash'];
@@ -182,10 +214,4 @@ console.log("-->in mottoIPFS.swarmPeers");
 	}
  }
 
-module.exports = {
-	//startDaemon: startDaemon,
-	ipfsPUT: ipfsPUT,
-	ipfsCAT: ipfsCAT,
-	ipfsLS: ipfsLS,
-	swarmPeers: swarmPeers,
-};
+module.exports = mottoIPFS;
