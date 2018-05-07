@@ -38,15 +38,17 @@
     <% }); %>   
 <% }else{ %>
 
-    <p><%- "No motto alive!" %> </p>
+    <%- "<p>No motto alive!</p>" %> 
 <% } %> 
 </ul>
 
 </div>
 <div class="container">
-<% if (mottoarea ) { %>
+<% if (typeof mottoarea !== 'undefined' ) { %>
 	<%- mottoarea %>
-<% } %>
+<% }else{ %>
+	<%- "<p>failed to include mottoarea </p>" %> 
+<%  } %>
 </div>
 
 
