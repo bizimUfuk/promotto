@@ -13,9 +13,9 @@ const PORT = process.env.PORT || 5000
 var app = express();
 var hash = "";
 var node;
+
 const repoPath = path.join(__dirname, 'mottoRepo');
 console.log("repoPath: ", repoPath)
-console.log("process argv: ", process.argv);
 
 mottoIPFS.spawnNode(repoPath, (api)=>{ //initialize node
 	node = api;

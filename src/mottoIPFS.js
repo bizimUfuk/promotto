@@ -17,17 +17,19 @@ const startDaemon = (ipfsd, cb) => {
 
 function spawnNode(rp, cb){
 	f.spawn({ disposable: false, repoPath: rp}, (err, ipfsd) => {
-	  if (err) {	throw err;  }
+		if (err) {	throw err;  }
 
-	    if (ipfsd.initialized){
-		startDaemon(ipfsd, (node) => cb(node) );
-	    }else{
-		ipfsd.init((err)=>{
-			if(err) { throw err }
+		if (ipfsd.initialized){
+			u.logdebug("ipfsd: already initialized. starting ipfsd>");
 			startDaemon(ipfsd, (node) => cb(node) );
-		})
-	    }
-
+		}else{
+			u.logdebug("ipfsd: not initialized. initializing>");
+			ipfsd.init((err)=>{
+				if(err) { throw err }
+				u.logdebug("ipfsd: initialized now. starting ipfsd>");
+				startDaemon(ipfsd, (node) => cb(node) );
+			})
+		}
 	});
 }
 
