@@ -19,9 +19,8 @@
 
 <div class="container">
 
-
 <h2> Lifeline </h2>
-<p id="demo"></p>
+
 <ul style="list-style-type: none;">
 <% if (alivemottos.length > 0 ){ %>
     <% alivemottos.forEach(function(r) { %>
@@ -32,7 +31,7 @@
 		<%- r.extract %>
 		<input class="votingbutton" id="+<%= r.did %>" type="button" value="upVote"/>
 		<input class="votingbutton" id="-<%= r.did %>" type="button" value="downVote"/>
-									<span class = "lifespan" data-motto-did = "<%= r.did %>" value="<%= r.shill %>" style="position: relative; bottom: 0px; float: right"> </span>
+		<span class = "lifespan" data-motto-did = "<%= r.did %>" value="<%= r.shill %>" style="position: relative; bottom: 0px; float: right"> </span>
 	</li>
 
 	</div>
@@ -44,9 +43,9 @@
 </ul>
 
 </div>
-<div>
-<% if (mottoArea ) { %>
-	<%- mottoArea %>
+<div class="container">
+<% if (mottoarea ) { %>
+	<%- mottoarea %>
 <% } %>
 </div>
 
