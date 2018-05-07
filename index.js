@@ -17,7 +17,13 @@ var mottoArea;
 
 
 mottoIPFS.spawnNode(path.join(__dirname, 'mottoRepo'), (api)=>{ //initialize node
+
 	node = api;
+
+	mottoIPFS.ipfsCAT(node, "/ipfs/QmdMnYXQ8xH5bxkAN41mR3g9YzB9N1zZhTzGxR1qk9WUyQ/index.html", function (err, extract){ 
+		mottoArea = err ? err : extract;
+	});
+
 	app.use(express.static(path.join(__dirname, 'public')))
 	  //.use(bodyParser.json()) //for parsing application/json
 	 // .use(bodyParser.urlencoded({ extended: true })) //for parsing application/x-www-form-urlencoded
@@ -32,15 +38,12 @@ mottoIPFS.spawnNode(path.join(__dirname, 'mottoRepo'), (api)=>{ //initialize nod
 	  .get('/', function (req, res){		//original url: QmdMnYXQ8xH5bxkAN41mR3g9YzB9N1zZhTzGxR1qk9WUyQ
 		let ip =req.connection.remoteAddress;
 		let text = "INSERT INTO access_logs (ip) VALUES ('" + ip + "') ON CONFLICT DO NOTHING RETURNING ip"
-		mottoDB.mottoQry(text, (err, fetch) => console.log("accessed to root/", err ? err : fetch.rowCount) );
-		mottoIPFS.ipfsCAT(node, "/ipfs/QmdMnYXQ8xH5bxkAN41mR3g9YzB9N1zZhTzGxR1qk9WUyQ/index.html", function (err, extract){ 
-			mottoArea = err ? err : extract;
-			res.render('pages/index', { mottoArea: mottoArea });
-		});
+		mottoDB.mottoQry(text, (err, fetch) => return; );
+		res.render('pages/index', { mottoArea: mottoArea });
 	  })
 	  .get('/liveline(\/:hash)?(\/:sub)?', function (req, res) {
 		liveline(req, res, function (fetch) {
-			res.render('pages/liveline', { mottoArea: mottoArea, alivemottos : fetch.sort(function(a,b){return b["shill"]-a["shill"]}) });
+			res.render('pages/liveline', { mottoarea: mottoArea, alivemottos : fetch.sort(function(a,b){return b["shill"]-a["shill"]}) });
 		});
 	  })
 	  .post('/vote', function (req, res){ mottoDB.mottoVote(req, (fetch) => res.send(fetch) );  })
