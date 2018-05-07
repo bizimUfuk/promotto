@@ -184,13 +184,19 @@ function swarmPeers(nd, phash, cb){
 			u.logdebug("-->bootstrapping");
 			u.readfromtxtfile("./utils/bootstrapnodes.txt", (lst)=>{
 				lst.forEach((peer)=>{
-					if(peer && (peer !== "--end--")) nd.swarm.connect(peer, (err)=>{u.logdebug(err? err: "Connected to: " + peer.toString())})
+					if(peer && (peer !== "--end--")) nd.swarm.connect(peer, (err)=>{
+						u.logdebug(err? err: "Connected to: " + peer.toString())
+					})
 				})
+				cb("bootstrap initiated!");
 			});
 			break;
 		case "connect":
 			if(peerhash !== 'undefined' ){
-				nd.swarm.connect(peerhash, (err)=>u.logdebug(err?"Couldnt connect to: ":"Connected to: ", phash) );
+				nd.swarm.connect(peerhash, (err)=>{
+					u.logdebug(err?"Couldnt connect to: ":"Connected to: ", phash);
+					cb(err?"Failed to connect to peer!" : "Connected to peer");
+				});
 			}
 			break;
 

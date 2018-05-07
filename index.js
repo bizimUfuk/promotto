@@ -75,6 +75,10 @@ mottoIPFS.spawnNode((api)=>{ //initialize node
 	  })
 	  .get('/swarm/:type(peers|connect|bootstrap)(\/)?(:peerhash(*))?', (request,response) => {
 		mottoIPFS.swarmPeers(node, request.params, (pl)=>{	response.render('pages/db', {results: pl, title: "Peer List"})	})	  })
+
+	  .get('/ipfsd/node', (req, res) => node.repo.stat((e,s)=>res.send(s))  )
+
+
 	  .listen(PORT, () => console.log(`Listening on ${ PORT }`)
 	  )//express() closure
 
