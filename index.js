@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 5000
 var app = express();
 var hash = "";
 var node;
-
+var mottoArea;
 
 
 mottoIPFS.spawnNode(path.join(__dirname, 'mottoRepo'), (api)=>{ //initialize node
@@ -32,12 +32,17 @@ mottoIPFS.spawnNode(path.join(__dirname, 'mottoRepo'), (api)=>{ //initialize nod
 	  .get('/', function (req, res){		//original url: QmdMnYXQ8xH5bxkAN41mR3g9YzB9N1zZhTzGxR1qk9WUyQ
 		let ip =req.connection.remoteAddress;
 		let text = "INSERT INTO access_logs (ip) VALUES ('" + ip + "') ON CONFLICT DO NOTHING RETURNING ip"
-		mottoDB.mottoQry(text, (err, fetch) => console.log("accessed to root/", fetch, err) );
+		mottoDB.mottoQry(text, (err, fetch) => console.log("accessed to root/", err ? err : fetch.rowCount) );
 		mottoIPFS.ipfsCAT(node, "/ipfs/QmdMnYXQ8xH5bxkAN41mR3g9YzB9N1zZhTzGxR1qk9WUyQ/index.html", function (err, extract){ 
-			res.render('pages/index', { mottoArea: (err ? err : extract) });
+			mottoArea = err ? err : extract;
+			res.render('pages/index', { mottoArea: mottoArea });
 		});
 	  })
-	  .get('/liveline(\/:hash)?(\/:sub)?', liveline)
+	  .get('/liveline(\/:hash)?(\/:sub)?', function (req, res) {
+		liveline(req, res, function (fetch) {
+			res.render('pages/liveline', { mottoArea: mottoArea, alivemottos : fetch.sort(function(a,b){return b["shill"]-a["shill"]}) });
+		});
+	  })
 	  .post('/vote', function (req, res){ mottoDB.mottoVote(req, (fetch) => res.send(fetch) );  })
 	  .get('/db/(:hash)?', function (req, res){ 
 		const cond = typeof req.params['hash'] === 'undefined' ? '':"WHERE hash='" + req.params['hash'] + "'";
@@ -91,7 +96,7 @@ mottoIPFS.spawnNode(path.join(__dirname, 'mottoRepo'), (api)=>{ //initialize nod
 }); //spawnNode closure
 
 
-function liveline (request, response){
+function liveline (request, response, cb){
 	const cond = typeof request.params.hash === 'undefined' ? '' : "WHERE hash = '" + request.params.hash + "' ";
  	const text = "SELECT * FROM live_hashes() " + cond;
 
@@ -123,7 +128,7 @@ function liveline (request, response){
 				if(!err) mottos.push(tempObj);
 
 				if (counter === liveHashes.length) {
-					response.render('pages/liveline', { alivemottos : mottos.sort(function(a,b){return b["shill"]-a["shill"]}) });
+					cb (mottos); 
 				}
 			});
 
