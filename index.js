@@ -14,10 +14,9 @@ var app = express();
 var hash = "";
 var node;
 
-const repoPath = path.join(__dirname, 'mottoRepo');
-console.log("repoPath: ", repoPath)
 
-mottoIPFS.spawnNode(repoPath, (api)=>{ //initialize node
+
+mottoIPFS.spawnNode(path.join(__dirname, 'mottoRepo'), (api)=>{ //initialize node
 	node = api;
 	app.use(express.static(path.join(__dirname, 'public')))
 	  //.use(bodyParser.json()) //for parsing application/json

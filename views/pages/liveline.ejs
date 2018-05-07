@@ -32,7 +32,7 @@
 		<%- r.extract %>
 		<input class="votingbutton" id="+<%= r.did %>" type="button" value="upVote"/>
 		<input class="votingbutton" id="-<%= r.did %>" type="button" value="downVote"/>
-									<span class = "lifespan" value="<%= r.shill %>" style="position: relative; bottom: 0px; float: right"> </span>
+									<span class = "lifespan" data-motto-did = "<%= r.did %>" value="<%= r.shill %>" style="position: relative; bottom: 0px; float: right"> </span>
 	</li>
 
 	</div>
@@ -54,7 +54,15 @@
 
 	    var ls = document.getElementsByClassName('lifespan');
 	    for (var j=0; j<ls.length; j++){
-		setInterval( lifetimer, 1000, ls[j]);
+
+		var diff = ls[j].getAttribute("value") - (new Date()).getTime();
+		var interval = diff > (24 * 3600000) ? 3600000 : (diff > 3600000 ? 60000 : 1000);
+		ls[j].innerHTML = ">1 day";
+		ls[j].parentElement.style.background= "rgba(0,255,0,1)";
+		
+//console.log("> %d: diff-%d, interval-%d", ls[j].getAttribute("data-motto-did"), diff, interval)
+		setInterval( lifetimer, interval, ls[j]);
+
 	    }
 
 
@@ -94,10 +102,27 @@
 	}
 
 	function lifetimer(m){
-		var d = m.attributes[1].value-(new Date()).getTime();
-		m.innerHTML =(new Date(d)).toLocaleTimeString();
-		
-		m.parentElement.style.background= d > 60000 ? "rgba(255,255,255,0.6)" : "rgba(255,0,0,0.6)";
+		var d = m.getAttribute("value") - (new Date()).getTime();
+		m.parentElement.style.background= d<=60000 ? "rgba(255,0,0,0.6)" : "rgba(255,255,255,0.6)";
+		var days = Math.floor(d / (1000 * 60 * 60 * 24));
+		var hours = Math.floor((d % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+		var minutes = Math.floor((d % (1000 * 60 * 60)) / (1000 * 60));
+		var seconds = Math.floor((d % (1000 * 60)) / 1000);
+
+		m.innerHTML = days + "d:" + hours + "h:" + minutes + "m:" + seconds + "s";
+
+		// If the count down is over, write some text 
+		if (d < 0) {
+			//clearInterval(countdown);
+			m.innerHTML = "EXPIRED";
+			m.parentElement.style.background= "rgba(255,0,0,1)";
+		}
+
+		if (days >=1) {
+			//clearInterval(countdown);
+			m.innerHTML = ">1 day";
+			m.parentElement.style.background= "rgba(0,255,0,1)";
+		}
 	}
 	</script>
 </body>
