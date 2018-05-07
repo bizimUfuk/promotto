@@ -32,8 +32,10 @@ f.spawn({ disposable: false , repoPath: "./.ipfsdctlrepo"},(err, ipfsd) => {
 
 
 function testCatGet (cb){
+console.log("in testCatGet");
 	//get test
-	node.files.cat("QmRdKfihZKweeWKz4EWtJREHh8WjXqdiPp6beidSuXQQUG/index.html", function (err, res) {
+	node.files.cat("QmdMnYXQ8xH5bxkAN41mR3g9YzB9N1zZhTzGxR1qk9WUyQ/index.html", function (err, res) {
+console.log("res: ", res);
 	    if (err) { cb(err) }
 
 	    console.log("response to cat: ", res.toString('utf-8'))
