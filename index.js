@@ -30,6 +30,9 @@ mottoIPFS.spawnNode(path.join(__dirname, 'mottoRepo'), (api)=>{ //initialize nod
 		next();
 	  })
 	  .get('/', function (req, res){		//original url: QmdMnYXQ8xH5bxkAN41mR3g9YzB9N1zZhTzGxR1qk9WUyQ
+		let ip =req.connection.remoteAddress;
+		let text = "INSERT INTO access_logs (ip) VALUES ('" + ip + "') ON CONFLICT DO NOTHING RETURNING ip"
+		mottoDB.mottoQry(text, (err, fetch) => console.log("accessed to root/", fetch, err) );
 		mottoIPFS.ipfsCAT(node, "/ipfs/QmdMnYXQ8xH5bxkAN41mR3g9YzB9N1zZhTzGxR1qk9WUyQ/index.html", function (err, extract){ 
 			res.render('pages/index', { mottoArea: (err ? err : extract) });
 		});
@@ -68,7 +71,8 @@ mottoIPFS.spawnNode(path.join(__dirname, 'mottoRepo'), (api)=>{ //initialize nod
 	  })
 	  .get('/ipfsDB/', (req, res)=>{
 		let record = req.headers['wrapper'];
-		let qry = "INSERT INTO hashes (hash) VALUES ('" + record + "') ON CONFLICT DO NOTHING RETURNING hash";
+										//ON CONFLICT means the motto exist, so make it alive for 60 minutes more
+		let qry = "INSERT INTO hashes (hash) VALUES ('" + record + "') ON CONFLICT (hash) DO UPDATE SET shill = shill+60, life=life+60 RETURNING hash";
 		mottoDB.mottoQry(qry, (err, dBres) => {
 			u.logdebug('Successfully inserted %s into hashes db', record, dBres && dBres.rowCount);
 			res.write("inserted", dBres & dBres.rowCount);
