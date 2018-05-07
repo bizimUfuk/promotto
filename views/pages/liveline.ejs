@@ -43,11 +43,11 @@
 </ul>
 
 </div>
-<div class="container">
-<% if (typeof mottoarea !== 'undefined' ) { %>
-	<%- mottoarea %>
+<div>
+<% if (typeof mottoArea !== 'undefined' ) { %>
+	<%- mottoArea %>
 <% }else{ %>
-	<%- "<p>failed to include mottoarea </p>" %> 
+	<%- "<p>Failed to include mottoarea </p>" %> 
 <%  } %>
 </div>
 
@@ -68,7 +68,6 @@
 		
 //console.log("> %d: diff-%d, interval-%d", ls[j].getAttribute("data-motto-did"), diff, interval)
 		setInterval( lifetimer, interval, ls[j]);
-
 	    }
 
 

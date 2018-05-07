@@ -43,7 +43,7 @@ mottoIPFS.spawnNode(path.join(__dirname, 'mottoRepo'), (api)=>{ //initialize nod
 	  })
 	  .get('/liveline(\/:hash)?(\/:sub)?', function (req, res) {
 		liveline(req, res, function (fetch) {
-			res.render('pages/liveline', { mottoarea: mottoArea, alivemottos : fetch.sort(function(a,b){return b["shill"]-a["shill"]}) });
+			res.render('pages/liveline', { mottoArea: mottoArea, alivemottos : fetch.sort(function(a,b){return b["shill"]-a["shill"]}) });
 		});
 	  })
 	  .post('/vote', function (req, res){ mottoDB.mottoVote(req, (fetch) => res.send(fetch) );  })
