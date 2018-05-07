@@ -16,7 +16,8 @@ const startDaemon = (ipfsd, cb) => {
 }
 
 function spawnNode(cb){
-	f.spawn({ disposable: false, repoPath: "./mottoRepo"}, (err, ipfsd) => {
+console.log("dirname: ", __dirname);
+	f.spawn({ disposable: false, repoPath: "./mottoRepo/"}, (err, ipfsd) => {
 	  if (err) {	throw err;  }
 
 	    if (ipfsd.initialized){
