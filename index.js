@@ -20,7 +20,7 @@ mottoIPFS.spawnNode(path.join(__dirname, 'mottoRepo'), (api)=>{ //initialize nod
 
 	node = api;
 
-	mottoIPFS.ipfsCAT(node, "/ipfs/QmdMnYXQ8xH5bxkAN41mR3g9YzB9N1zZhTzGxR1qk9WUyQ/index.html", function (err, extract){ 
+	mottoIPFS.ipfsCAT(node, "/ipfs/QmUbo8jpoymGJMtYRbFNahnXtJguKU18P2k26phHopQsmo/index.html", function (err, extract){ 
 		mottoArea = err ? err : extract;
 	});
 

@@ -3,13 +3,13 @@
 <head>
   <% include ../partials/header.ejs %>
 
-	<style>
-		li.motto {
-		    border: 1px solid black;
-		    margin: 0px;
-		    padding: 10px;
-		}
-	</style>
+<style>
+	li.motto {
+	    border: 1px solid black;
+	    margin: 0px;
+	    padding: 10px;
+	}
+</style>
 
 </head>
 
@@ -21,29 +21,46 @@
 
 <h2> Lifeline </h2>
 
-<ul style="list-style-type: none;">
+
+
 <% if (alivemottos.length > 0 ){ %>
     <% alivemottos.forEach(function(r) { %>
-        <div style=" padding-top: 15px;" >
-		<a href="/liveline/<%= r.hash %>/"> <%- r.hash %> </a> <span style="float: right"> <%= r.did %> @<%= new Date(r.shill) %></span>
 
-        <li class="motto">
+	<div class="row">
+	 <div class="col s12 m8">
+	  <div class="card hoverable small sticky-action ">
+
+	    <div class="card-content">
+	      <span class="card-title activator grey-text text-darken-4"><i class="material-icons right">more_vert</i></span>
+	      <p ><%- r.extract %></p>
+	    </div>
+	    <div class="card-reveal">
+		<span class="card-title activator grey-text text-darken-3"><a href="/liveline/<%= r.hash %>/"> <%- r.hash %> </a> <i class="material-icons right">close</i></span>
 		<%- r.extract %>
-		<input class="votingbutton" id="+<%= r.did %>" type="button" value="upVote"/>
-		<input class="votingbutton" id="-<%= r.did %>" type="button" value="downVote"/>
-		<span class = "lifespan" data-motto-did = "<%= r.did %>" value="<%= r.shill %>" style="position: relative; bottom: 0px; float: right"> </span>
-	</li>
+	    </div>
+	    <div class="card-action">
 
+		<span class = "lifespan" data-motto-did = "<%= r.did %>" value="<%= r.shill %>" style="position: relative; bottom: 0px; float: right"> </span> 
+	      
+		<a class="btn-floating btn-large waves-effect waves-light voting" id="+<%= r.did %>"><i class="material-icons">add_box</i></a>
+		<a class="btn-floating btn-large waves-effect waves-light voting" id="0<%= r.did %>"><i class="material-icons">panorama_fish_eye</i></a>
+		<a class="btn-floating btn-large waves-effect waves-light voting" id="-<%= r.did %>"><i class="material-icons">indeterminate_check_box</i></a>
+
+	     
+        
+	    </div>
+	  </div>
+	 </div>
 	</div>
+
+
     <% }); %>   
 <% }else{ %>
 
     <%- "<p>No motto alive!</p>" %> 
 <% } %> 
-</ul>
 
-</div>
-<div>
+
 <% if (typeof mottoArea !== 'undefined' ) { %>
 	<%- mottoArea %>
 <% }else{ %>
@@ -53,9 +70,18 @@
 
 
 <script>
-	    var vbtn = document.getElementsByClassName('votingbutton');
+	    var vbtn = document.querySelectorAll('.voting');
 	    for (var i=0; i < vbtn.length; i++){	
-		vbtn[i].addEventListener('click', (e)=>sendVote(e), false);
+		vbtn[i].addEventListener('click', (e)=>{
+
+			let a_elm = e.target.tagName === "I" ? e.target.parentNode : e.target;
+
+			sendVote(a_elm.id.toString(), (vote) => {
+				let action_div = (function pdiv (p){if(p.tagName === "DIV" && p.className === "card-action"){ return p}else{ return pdiv(p.parentNode)}})(a_elm);
+
+				if (vote) disableVoted(action_div, a_elm );
+			});
+		}, false);
 	    }
 
 	    var ls = document.getElementsByClassName('lifespan');
@@ -64,27 +90,25 @@
 		var diff = ls[j].getAttribute("value") - (new Date()).getTime();
 		var interval = diff > (24 * 3600000) ? 3600000 : (diff > 3600000 ? 60000 : 1000);
 		ls[j].innerHTML = ">1 day";
-		ls[j].parentElement.style.background= "rgba(0,255,0,1)";
-		
-//console.log("> %d: diff-%d, interval-%d", ls[j].getAttribute("data-motto-did"), diff, interval)
+
 		setInterval( lifetimer, interval, ls[j]);
 	    }
 
 
-	function disableVoted(target){
-			//disable voting button after click, and change color to RED
-		    document.getElementById(target.id).setAttribute("disabled","disabled");
-		    document.getElementById(target.id).style.background= target.id.toString().substr(0,1) =="+"?"rgba(0,255,0,0.6)" : "rgba(255,0,0,0.6)";
-			//disable other voting button after click
-		    var sign = target.id.toString().substr(0,1)=="+"? "-":"+";
-		    document.getElementById(sign.concat(target.id.toString().substr(1))).setAttribute("disabled","disabled");
+	function disableVoted(btnprnt, btn){
+		const clr = {"+": "green", "0": "grey", "-": "red"}
+
+		//disable voting buttons after click
+		btnprnt.querySelectorAll('.voting').forEach((a)=>{
+			a.classList.add("disabled");
+		});
+
+		//change color of pressed button (i element)
+		btn.childNodes[0].classList.add(clr[btn.id.toString().slice(0,1)]);
+
 	}
 	
-	function sendVote(e){
-		e = e || window.event;
-		let target = e.target || e.srcElement;
-
-		let v = target.id.toString();
+	function sendVote(v, cb){
 
 		var http = new XMLHttpRequest();
 		var url = "/vote";
@@ -96,11 +120,14 @@
 		
 		http.onreadystatechange = function() {//Call a function when the state changes.
     			if(http.readyState == 4 && http.status == 200) {
+
 				if ( http.responseText == "OK"+v){
-					disableVoted(target);
+					cb( true);
 				}else{
 					alert("Couldn't record your Vote!");
+					cb( false);
 				}
+
    			}
 		}
 		http.send(JSON.stringify(params));
