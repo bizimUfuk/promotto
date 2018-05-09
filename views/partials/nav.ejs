@@ -1,28 +1,42 @@
-<nav class="navbar navbar-default navbar-static-top navbar-inverse">
-  <div class="container">
-    <ul class="nav navbar-nav">
-      <li class="active">
-        <a href="/"><span class="glyphicon glyphicon-home"></span> Home</a>
-      </li>
-      <li>
-        <a href="/liveline"><span class="glyphicon glyphicon-bullhorn"></span>  Liveline   </a>
-      </li>
-      <li class="dropdown">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="glyphicon glyphicon-info-sign"></span> Various Methods <span class="caret"></span></a>
-          <ul class="dropdown-menu" role="menu">
-            <li><a href="/db/">List hashes in DB </a></li>
-            <li><a href="/db/live_hashes">List live_hashes()</a></li>
-            <li class="divider"></li>
-	    <li><a href="/swarm/peers/">List Connected Peers</a></li>
-	    <li><a href="/swarm/connect/ip4/127.0.0.1/tcp/4001/ipfs/QmU987F9Z9e6eRTc4TEmwcnTqaGHD7gzfDRHX9sY1ySBGN">Connect to peer</a></li>
-	    <li><a href="/swarm/bootstrap/">Bootstrap peers</a></li>
-          </ul>
-      </li>
-    </ul>
-    <ul class="nav navbar-nav navbar-right">
-      <li class="navbar-right">
-        <a href="#"><span class="glyphicon glyphicon-book"></span> # </a>
-      </li>
-    </ul>
-  </div>
-</nav>
+<!-- start materialized design -->
+  <!-- Dropdown Structure -->
+  <ul id='varmethods' class='dropdown-content '>
+    <li><a href="/db/">			<i class="material-icons">donut_small</i>		DB #</a></li>
+    <li><a href="/db/live_hashes">	<i class="material-icons">hourglass_full</i>		live #</a></li>
+    <li class="divider" tabindex="-1"></li>
+    <li><a href="/swarm/peers/">	<i class="material-icons">list</i>			List Peers</a></li>
+    <li><a href="/swarm/connect/ip4/127.0.0.1/tcp/4001/ipfs/QmU987F9Z9e6eRTc4TEmwcnTqaGHD7gzfDRHX9sY1ySBGN">
+					<i class="material-icons">all_inclusive</i>		Connect Peer</a></li>
+    <li><a href="/swarm/bootstrap/">	<i class="material-icons">multiline_chart</i>		Bootstrap</a></li>
+  </ul>
+
+<!-- navigation -->
+  <nav class="nav-extended">
+    <div class="nav-wrapper">
+      <a href="/" class="brand-logo">proMotto</a>
+      <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+      <ul id="nav-mobile" class="right hide-on-med-and-down">
+	<!-- Dropdown Trigger -->
+	<li><a class="dropdown-trigger" href="#!" data-target="varmethods">DEBUG<i class="material-icons right">arrow_drop_down</i></a></li>
+
+        <li><a href="#">1</a></li>
+        <li><a href="#">2</a></li>
+        <li><a href="#">3</a></li>
+      </ul>
+    </div>
+    <div class="nav-content">
+      <ul class="tabs tabs-transparent">
+        <li class="tab"><a class="active" href="/liveline"><i class="material-icons left">timelapse</i><span class="right hide-on-med-and-down">Liveline</span></a></li>
+        <li class="tab"><a href="#test2">Test 2</a></li>
+        <li class="tab disabled"><a href="#test3">Disabled Tab</a></li>
+      </ul>
+    </div>
+  </nav>
+
+
+  <ul class="sidenav" id="mobile-demo">
+    <li><a href="#">1</a></li>
+    <li><a href="#">2</a></li>
+    <li><a href="#">3</a></li>
+  </ul>
+

@@ -2,6 +2,10 @@
 node_modules
 npm-debug.log
 
+# unrelated folders
+mottoRepo
+
+
 # Local development
 *.env
 *.dev
