@@ -27,7 +27,7 @@
     <% alivemottos.forEach(function(r) { %>
 
 	<div class="row">
-	 <div class="col s12 m8">
+	 <div class="col s12 m9">
 	  <div class="card hoverable small sticky-action ">
 
 	    <div class="card-content">
@@ -35,20 +35,19 @@
 	      <p ><%- r.extract %></p>
 	    </div>
 	    <div class="card-reveal">
-		<span class="card-title activator grey-text text-darken-3"><a href="/liveline/<%= r.hash %>/"> <%- r.hash %> </a> <i class="material-icons right">close</i></span>
+		<span class="card-title activator grey-text text-darken-3"><p></p> <i class="material-icons right">close</i></span>
 		<%- r.extract %>
 	    </div>
 	    <div class="card-action">
+		<a class="btn-floating waves-effect waves-light voting" id="+<%= r.did %>"><i class="material-icons">add_box</i></a>
+		<a class="btn-floating waves-effect waves-light voting" id="0<%= r.did %>"><i class="material-icons">panorama_fish_eye</i></a>
+		<a class="btn-floating waves-effect waves-light voting" id="-<%= r.did %>"><i class="material-icons">indeterminate_check_box</i></a>
 
-		<span class = "lifespan" data-motto-did = "<%= r.did %>" value="<%= r.shill %>" style="position: relative; bottom: 0px; float: right"> </span> 
-	      
-		<a class="btn-floating btn-large waves-effect waves-light voting" id="+<%= r.did %>"><i class="material-icons">add_box</i></a>
-		<a class="btn-floating btn-large waves-effect waves-light voting" id="0<%= r.did %>"><i class="material-icons">panorama_fish_eye</i></a>
-		<a class="btn-floating btn-large waves-effect waves-light voting" id="-<%= r.did %>"><i class="material-icons">indeterminate_check_box</i></a>
+		<a class="btn-floating btn-large right green lifespan " data-motto-did="<%= r.did %>" value="<%= r.shill %>"><i class="material-icons">favorite</i> </a>
 
-	     
-        
 	    </div>
+
+	      
 	  </div>
 	 </div>
 	</div>
@@ -70,6 +69,7 @@
 
 
 <script>
+
 	    var vbtn = document.querySelectorAll('.voting');
 	    for (var i=0; i < vbtn.length; i++){	
 		vbtn[i].addEventListener('click', (e)=>{
@@ -85,16 +85,49 @@
 	    }
 
 	    var ls = document.getElementsByClassName('lifespan');
+	    var moment =(new Date()).getTime() ;
+
 	    for (var j=0; j<ls.length; j++){
 
-		var diff = ls[j].getAttribute("value") - (new Date()).getTime();
-		var interval = diff > (24 * 3600000) ? 3600000 : (diff > 3600000 ? 60000 : 1000);
-		ls[j].innerHTML = ">1 day";
-
-		setInterval( lifetimer, interval, ls[j]);
+		var diff = ls[j].getAttribute("value") - moment;
+		
+		if(diff >0 && diff < 7200000){ //set timer only for 2 hour of mottos
+			ls[j].classList.add("pulse");
+			var interval = diff >= 3600000 ? 600000 : (diff >= 900000 ? 60000 : 1000);
+			var countdown = setInterval( lifetimer, interval, ls[j]);
+		}else if(diff < 0){
+			ls[j].className = ls[j].className.replace(/\bgreen\b/g, " red ");
+			ls[j].className = ls[j].className.replace(/\bpulse\b/g, " ");
+			ls[j].childNodes[0].innerHTML = "hourglass_empty";
+		}
 	    }
 
+	function lifetimer(m){
 
+		var d = m.getAttribute("value") - (new Date()).getTime();
+	
+		var days = Math.floor(d / (1000 * 60 * 60 * 24));
+		var hours = Math.floor((d % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+		var minutes = Math.floor((d % (1000 * 60 * 60)) / (1000 * 60));
+		var seconds = Math.floor((d % (1000 * 60)) / 1000);
+
+		var clr="", inn=null;
+		if(d<=0){
+			m.innerHTML = "<i class=\"material-icons\">hourglass_empty</i>";
+			m.className = m.className.replace(/\b(green|orange)\b/g, " red ");
+			m.className = m.className.replace(/\bpulse\b/g, " ");
+		}else if( 900000 > d) { 
+			m.className = m.className.replace(/\b(orange | green)\b/g, " red ");
+			m.innerHTML = minutes > 0 ? minutes + "m:" + seconds + "s": seconds + "s"; 
+		}else if(3600000 > d) { 
+			m.className = m.className.replace(/\b(green | red)\b/g, " orange ");
+			m.innerHTML = "<i class=\"material-icons\">favorite</i>";
+		}else{
+			m.className = m.className.replace(/\b(orange | red)\b/g, " green ");
+			m.innerHTML = "<i class=\"material-icons\">favorite</i>";
+		}	
+
+	}
 	function disableVoted(btnprnt, btn){
 		const clr = {"+": "green", "0": "grey", "-": "red"}
 
@@ -112,7 +145,7 @@
 
 		var http = new XMLHttpRequest();
 		var url = "/vote";
-		var params = {"v":v.substr(0,1), 'did': v.substr(1) };
+		var params = {"v": v };
 		http.open("POST", url, true);
 	
 		//Send the proper header information along with the request
@@ -133,29 +166,7 @@
 		http.send(JSON.stringify(params));
 	}
 
-	function lifetimer(m){
-		var d = m.getAttribute("value") - (new Date()).getTime();
-		m.parentElement.style.background= d<=60000 ? "rgba(255,0,0,0.6)" : "rgba(255,255,255,0.6)";
-		var days = Math.floor(d / (1000 * 60 * 60 * 24));
-		var hours = Math.floor((d % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-		var minutes = Math.floor((d % (1000 * 60 * 60)) / (1000 * 60));
-		var seconds = Math.floor((d % (1000 * 60)) / 1000);
-
-		m.innerHTML = days + "d:" + hours + "h:" + minutes + "m:" + seconds + "s";
-
-		// If the count down is over, write some text 
-		if (d < 0) {
-			//clearInterval(countdown);
-			m.innerHTML = "EXPIRED";
-			m.parentElement.style.background= "rgba(255,0,0,1)";
-		}
-
-		if (days >=1) {
-			//clearInterval(countdown);
-			m.innerHTML = ">1 day";
-			m.parentElement.style.background= "rgba(0,255,0,1)";
-		}
-	}
+	
 	</script>
 <% include ../partials/scriptsInHtml.ejs %>
 </body>

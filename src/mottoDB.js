@@ -38,13 +38,16 @@ function mottoQry (text, cb) {
 }
 
 function mottoVote(req, goback) {
-	var body = JSON.parse(req.body);
-	text = "UPDATE hashes SET shill=shill"+body.v+"1, life=life+1 WHERE did="+ body.did;
-
+	var vote = JSON.parse(req.body);
+	let sign = vote.v.substr(0,1);
+	let did = vote.v.substr(1);
+	let values = sign === "0" ? "interaction=interaction+1" : "shill=shill" + sign + "1, life=life+1, interaction=interaction+1";
+	let text = "UPDATE hashes SET " + values + " WHERE did=" + did;
+	
 	mottoQry(text, (err, fetch) => {
 		if (err) console.log("Error update vote: \n", text);
-		u.logdebug("Recorded vote %s 1 for did: %d !", body.v, body.did);
-		goback (err ? err : "OK"+body.v+body.did);
+		u.logdebug("Recorded vote %s 1 for did: %d !", vote.v, vote.did);
+		goback (err ? err : "OK"+vote.v);
 	})
 }
 

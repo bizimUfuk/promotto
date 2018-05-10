@@ -25,16 +25,9 @@ mottoIPFS.spawnNode(path.join(__dirname, 'mottoRepo'), (api)=>{ //initialize nod
 	});
 
 	app.use(express.static(path.join(__dirname, 'public')))
-	  //.use(bodyParser.json()) //for parsing application/json
-	 // .use(bodyParser.urlencoded({ extended: true })) //for parsing application/x-www-form-urlencoded
-	 // .use(bodyParser.text({ type: 'text/html' }))
 	  .use(bodyParser.raw({inflate: true, limit: '100kb', type: 'text/html'}))
 	  .set('views', path.join(__dirname, 'views'))
 	  .set('view engine', 'ejs')
-	  .get('*',(req, res, next)=>{
-		console.log("requested--> method: %s \t url: %s \t path: %s \t orgUrl: %s", req.method, req.url, req.path, req.originalUrl );
-		next();
-	  })
 	  .get('/', function (req, res){		//original url: QmdMnYXQ8xH5bxkAN41mR3g9YzB9N1zZhTzGxR1qk9WUyQ
 		let ip =req.connection.remoteAddress;
 		let text = "INSERT INTO access_logs (ip) VALUES ('" + ip + "') ON CONFLICT DO NOTHING RETURNING ip"
@@ -89,8 +82,6 @@ mottoIPFS.spawnNode(path.join(__dirname, 'mottoRepo'), (api)=>{ //initialize nod
 	  })
 	  .get('/swarm/:type(peers|connect|bootstrap)(\/)?(:peerhash(*))?', (request,response) => {
 		mottoIPFS.swarmPeers(node, request.params, (pl)=>{	response.render('pages/db', {results: pl, title: "Peer List"})	})	  })
-
-	  .get('/ipfsd/node', (req, res) => node.repo.stat((e,s)=>res.send(s))  )
 
 
 	  .listen(PORT, () => console.log(`Listening on ${ PORT }`)
